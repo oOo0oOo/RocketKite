@@ -129,3 +129,11 @@ class SpaceShip(Widget):
 
         self.velocity[0] += vel[0]
         self.velocity[1] += vel[1]
+
+
+class Checkpoint(Widget):
+    points = ListProperty([])
+    def __init__(self, points, reward, **kwargs):
+        super(Checkpoint, self).__init__(**kwargs)
+        self.points = points
+        self.reward = reward

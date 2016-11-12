@@ -5,27 +5,25 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 
 from game_objects import *
-from levels import test_level, random_level
+from levels import progression_levels
 
 
 class GameDisplay(Widget):
     def __init__(self, **kwargs):
         super(GameDisplay, self).__init__(**kwargs)
-        self.load_level(test_level)
+        self.load_level()
 
 
     def load_level(self, params = False):
         self.clear_widgets()
         self.pause_game_clock()
 
-        self.steps = 0
-
         if params == False:
-            params = random_level()
+            params = progression_levels.next()
 
-        self.paused = False
         self.params = params
         self.sim_speedup = params['sim_speedup']
 
@@ -55,9 +53,29 @@ class GameDisplay(Widget):
             max_angle = params['canon_max_angle'])
         self.add_widget(self.canon)
 
-        # No spaceships yet
-        self.spaceships = []
-        self.control = -1
+
+        # Setup the checkpoints
+        self.checkpoints = []
+        for i, planet in enumerate(params['checkpoint_planet']):
+
+            # find the start and endpoint of the checkpoint
+            angle = math.radians(params['checkpoint_angle'][i])
+            vect = [math.sin(angle), math.cos(angle)]
+            p_pos = params['planet_pos'][planet]
+
+            points = []
+            seg = params['checkpoint_segment'][i]
+            seg = [self.scale_dist(s) for s in seg]
+
+            for d in seg:
+                p = [p_pos[ii] + d * vect[ii] for ii in range(2)]
+                p = self.transform_pos(p)
+                points += p
+
+            cp = Checkpoint(points,params['checkpoint_reward'][i])
+
+            self.add_widget(cp)
+            self.checkpoints.append(cp)
 
         # Add Buttons
         self.accelerate_btn = Button(text = 'down', size = (150, 100), font_size = 12,
@@ -86,13 +104,25 @@ class GameDisplay(Widget):
         self.add_widget(self.right_btn)
         self.add_widget(self.reset_btn)
 
-        # Add prediction
-        # self.prediction = Prediction(n_points = 16)
-        # self.add_widget(self.prediction)
-        self.trace = Trace(n_points = 300)
+        # Reward and time display
+        self.reward_disp = Label(text = '101', font_size=38,
+            center = (150, 680))
+        self.time_disp = Label(text = '546.3', font_size=32,
+            center = (900, 680))
+        self.add_widget(self.reward_disp)
+        self.add_widget(self.time_disp)
+
+        # Add trace
+        self.trace = Trace(n_points = 359)
         self.add_widget(self.trace)
 
+        # No spaceships yet
+        self.spaceships = []
+        self.control = -1
+
+        # This is really needed!
         self.start_launch()
+
         self.start_game_clock()
 
 
@@ -175,10 +205,26 @@ class GameDisplay(Widget):
         self.launching = True
         self.control = -1
         self.trace.opacity = 0.0
+        self.last_checkpoint = -1
         self.trace.reset()
+        self.reward = 0
+        self.passed_checkpoint = [False for x in self.params['checkpoint_planet']]
+        self.steps = 0
+        self.paused = False
+        self.episode_time = 0
+        self.time_complete_checkpoints = -1
+
+        self.time_disp.text = '0'
+        self.reward_disp.text = '0'
 
 
     def update(self,dt):
+        if not self.launching:
+            self.episode_time += dt
+            # Show the episode time in realtime if not all checkpoints
+            if not all(self.passed_checkpoint):
+                self.time_disp.text = str(int(self.episode_time))
+
         # Speed up the simulation a bit
         dt *= self.sim_speedup
         self.steps += 1
@@ -223,6 +269,41 @@ class GameDisplay(Widget):
                     if dist < 15:
                         to_remove.append(k)
                         to_remove.append(i)
+
+
+                # Collision with checkpoint
+                # Collide widget doesnt work:(
+                pos = spaceship.pos
+
+                for c, cp in enumerate(self.checkpoints):
+                    if not self.last_checkpoint == c:
+                        p_pos = self.planet_pos[self.params['checkpoint_planet'][c]]
+
+                        # Convert to polar coords around planet
+                        x = pos[0] - p_pos[0]
+                        y = pos[1] - p_pos[1]
+
+                        dist = math.hypot(x,y)
+                        seg = self.params['checkpoint_segment'][c]
+
+                        if seg[0] < dist < seg[1]:
+                            angle = math.degrees(math.atan2(y,x))
+                            angle = (90-angle)%360
+                            if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
+                                self.last_checkpoint = c
+
+                                # give reward
+                                self.reward += self.params['checkpoint_reward'][c]
+                                self.reward_disp.text = str(self.reward)
+
+                                # Log checkpoint and check if first time all checkoints
+                                not_all = all(self.passed_checkpoint)
+                                self.passed_checkpoint[c] = True
+                                if all(self.passed_checkpoint) and not not_all:
+                                    self.time_disp.text = str(round(self.episode_time, 1))
+                                    self.time_complete_checkpoints = self.episode_time
+                                    print 'Completed checkpoints', round(self.episode_time,1)
+                                break
 
 
             # Remove collided spaceships
