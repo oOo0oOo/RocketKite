@@ -1,0 +1,310 @@
+import math
+import random
+
+from kivy.uix.widget import Widget
+from kivy.core.window import Window
+from kivy.clock import Clock
+from kivy.uix.button import Button
+
+from game_objects import *
+from levels import test_level, random_level
+
+
+class GameDisplay(Widget):
+    def __init__(self, **kwargs):
+        super(GameDisplay, self).__init__(**kwargs)
+        self.load_level(test_level)
+
+
+    def load_level(self, params = False):
+        self.clear_widgets()
+        self.pause_game_clock()
+
+        self.steps = 0
+
+        if params == False:
+            params = random_level()
+
+        self.paused = False
+        self.params = params
+        self.sim_speedup = params['sim_speedup']
+
+
+        self.setup_coord_system(params['simulation_box'])
+
+        # Create Planets
+        self.planets = []
+        self.planet_pos = []
+        for i, pos in enumerate(params['planet_pos']):
+            tp = self.transform_pos(pos)
+            self.planet_pos.append(tp)
+            rad = self.scale_dist(params['planet_radius'][i])
+
+            self.planets.append(Planet(radius = rad, pos = tp))
+            self.add_widget(self.planets[-1])
+
+            # Calculate the canon pos
+            if i == params['canon_planet']:
+                angle = params['canon_planet_angle']
+                rad_angle = math.radians(angle)
+                x = tp[0] + math.sin(rad_angle) * rad
+                y = tp[1] + math.cos(rad_angle) * rad
+                self.canon_pos = (x, y)
+
+        self.canon = Canon(pos = self.canon_pos, angle = angle,
+            max_angle = params['canon_max_angle'])
+        self.add_widget(self.canon)
+
+        # No spaceships yet
+        self.spaceships = []
+        self.control = -1
+
+        # Add Buttons
+        self.accelerate_btn = Button(text = 'up', size = (200, 100), font_size = 0,
+            background_color = [1.0]*3+[0.7],
+            pos = (900, 20), on_press = self.btn_press, on_release = self.btn_press)
+        self.accelerate_btn.foreground_color = (0.8,0.8,0.8,1.0)
+
+        self.left_btn = Button(text = 'left', size = (150, 100), font_size = 0,
+            background_color = [1.0]*3+[0.7],
+            pos = (100, 20), on_press = self.btn_press, on_release = self.btn_press)
+
+        self.right_btn = Button(text = 'right', size = (150, 100), font_size = 0,
+            background_color = [1.0]*3+[0.7],
+            pos = (275, 20), on_press = self.btn_press, on_release = self.btn_press)
+
+        self.reset_btn = Button(text = 'reset', size = (60, 60), font_size = 0,
+            background_color = [1.0]*3+[0.7],
+            pos = (20, self.size_win[1] - 80), on_press = self.btn_press)
+
+        self.add_widget(self.accelerate_btn)
+        self.add_widget(self.left_btn)
+        self.add_widget(self.right_btn)
+        self.add_widget(self.reset_btn)
+
+        # Add prediction
+        # self.prediction = Prediction(n_points = 16)
+        # self.add_widget(self.prediction)
+        self.trace = Trace(n_points = 300)
+        self.add_widget(self.trace)
+
+        self.start_launch()
+        self.start_game_clock()
+
+
+    def setup_coord_system(self, size_sim):
+        # The simulation box is maximized and centered on the screen
+        self.size_win = tuple(Window.size)
+
+        # Scaling factor
+        scale = [float(self.size_win[i]) / size_sim[i] for i in range(2)]
+        scale = round(min(scale),4)
+
+        # Transform
+        scaled_sim = [int(s*scale) for s in size_sim]
+        transform = [(w-s)/2 for w,s in zip(self.size_win, scaled_sim)]
+
+        self.transform_vect = tuple(transform)
+        self.scale_factor = scale
+
+
+    def btn_press(self, *args, **kwargs):
+        btn_down = args[0].state == 'down'
+        btn = args[0].text
+
+        if btn == 'reset' and btn_down:
+            self.load_level()
+            return
+
+        # Trigger launch
+        if self.launching and btn_down:
+            self.launch_spaceship()
+
+        # Control spaceship
+        elif self.control > -1:
+            # Accelerate if up
+            if btn == 'up':
+                self.spaceships[self.control].accelerate = btn_down
+
+            elif btn in ('left', 'right'):
+                if not btn_down:
+                    self.spaceships[self.control].turn = 0
+
+                elif btn == 'left':
+                    self.spaceships[self.control].turn = -1
+
+                elif btn == 'right':
+                    self.spaceships[self.control].turn = 1
+
+
+    def launch_spaceship(self):
+        pos, angle = self.canon.launch()
+
+        # Initial velocity in scaled coordinates
+        vel = self.params['canon_velocity'] * self.scale_factor
+        r = math.radians(angle)
+        vect = [vel * math.sin(r), vel * math.cos(r)]
+
+        # Create a new SpaceShip
+        pos = [pos[0] + vect[0], pos[1] + vect[1]]
+        spaceship = SpaceShip(pos = pos, velocity=vect,
+            angle = angle, acceleration = self.params['acc'],
+            acc_ang = self.params['acc_angular'])
+
+        self.add_widget(spaceship)
+        self.spaceships.append(spaceship)
+
+        # And control it
+        self.control = len(self.spaceships) - 1
+        self.launching = False
+
+        # Enable trace
+        self.trace.opacity = 1.0
+
+
+    def start_launch(self):
+        self.canon.start_launch()
+        self.launching = True
+        self.control = -1
+        self.trace.opacity = 0.0
+        self.trace.reset()
+
+
+    def update(self,dt):
+        # Speed up the simulation a bit
+        dt *= self.sim_speedup
+        self.steps += 1
+
+        # Move all spaceships if not paused
+        if not self.paused:
+            # Get gravity vector for all spaceships
+            gravity = self.get_gravity_vectors(dt)
+
+            # Update each spaceship
+            to_remove = []
+            for i, spaceship in enumerate(self.spaceships):
+                # Process user inputs
+                spaceship.update(dt)
+
+                # Update velocity
+                spaceship.velocity[0] += gravity[i][0]
+                spaceship.velocity[1] += gravity[i][1]
+
+                # Update Position
+                spaceship.pos[0] += dt * spaceship.velocity[0]
+                spaceship.pos[1] += dt * spaceship.velocity[1]
+
+                # Collision: Leave screen
+                if not 0 < spaceship.pos[0] < self.size_win[0]:
+                    to_remove.append(i)
+                elif not 0 < spaceship.pos[1] < self.size_win[1]:
+                    to_remove.append(i)
+
+                # Collision detection: planets
+                for j, p in enumerate(self.planets):
+                    vect = [p.pos[0] - spaceship.pos[0], p.pos[1] - spaceship.pos[1]]
+                    dist = math.hypot(*vect)
+                    if dist < p.radius:
+                        to_remove.append(i)
+                        break
+
+                # Collision with other spaceships
+                for k in range(i+1, len(self.spaceships)):
+                    vect = [self.spaceships[k].pos[jjj] - spaceship.pos[jjj] for jjj in range(2)]
+                    dist = math.hypot(*vect)
+                    if dist < 15:
+                        to_remove.append(k)
+                        to_remove.append(i)
+
+
+            # Remove collided spaceships
+            for i in reversed(sorted(set(to_remove))):
+                self.remove_widget(self.spaceships[i])
+                del self.spaceships[i]
+
+                # The one under control was destroyed
+                if i == self.control:
+                    self.control = -1
+                    self.start_launch()
+
+            # Update Trace
+            if self.control != -1 and not self.steps%3:
+                pos = self.spaceships[self.control].pos
+                self.trace.add_point(pos)
+
+
+    def get_gravity_vectors(self, dt):
+        '''
+            Calculates vector of gravity for all spaceships
+        '''
+        vectors = []
+        pm = self.params['planet_mass']
+        G = self.params['gravity_constant']
+
+        for j, spaceship in enumerate(self.spaceships):
+            pos = spaceship.pos
+            tot_force = [0,0]
+            for i, p_pos in enumerate(self.planet_pos):
+                vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
+                dist = math.hypot(vect[0], vect[1]) * self.scale_factor
+                gravity = G * pm[i] / (dist**2)
+                tot_force[0] += dt * vect[0] * gravity / dist
+                tot_force[1] += dt * vect[1] * gravity / dist
+            vectors.append(tot_force)
+        return vectors
+
+
+    # def update_prediction(self, pos, vel, dt = 0.01, n_points = 3, n_skip = 5):
+    #     pm = self.params['planet_mass']
+    #     G = self.params['gravity_constant']
+    #     pos = list(tuple(pos))
+    #     vel = list(tuple(vel))
+    #     points = []
+    #     for i in range(n_points + n_points * n_skip):
+    #         tot_force = [0,0]
+    #         for j, p_pos in enumerate(self.planet_pos):
+    #             vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
+    #             dist = math.hypot(vect[0], vect[1]) * self.scale_factor
+    #             gravity = G * pm[j] / (dist**2)
+    #             tot_force[0] += dt * vect[0] * gravity / dist
+    #             tot_force[1] += dt * vect[1] * gravity / dist
+
+    #         pos[0] = pos[0] + vel[0]
+    #         pos[1] = pos[1] + vel[1]
+
+    #         vel[0] += tot_force[0]
+    #         vel[1] += tot_force[1]
+
+    #         if not i%n_skip:
+    #             if math.hypot(*tot_force) < 1.0:
+    #                 points.append(tuple(pos))
+    #             else:
+    #                 points.append((-50,-50))
+
+    #     self.prediction.set_points(points)
+
+
+    def transform_pos(self, pos):
+        tv = self.transform_vect
+        return (pos[0] + tv[0], pos[1] + tv[1])
+
+
+    def scale_dist(self, dist):
+        return dist * self.scale_factor
+
+
+    def scale_vect(self, vect):
+        return (vect[0] * self.scale_factor, vect[1] * self.scale_factor)
+
+
+    def pause_game_clock(self):
+        Clock.unschedule(self.update)
+
+
+    def start_game_clock(self):
+        Clock.schedule_interval(self.update, 1.0/40.0)
+
+
+
+if __name__ == '__main__':
+    game_display = GameDisplay()

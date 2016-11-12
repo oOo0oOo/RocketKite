@@ -1,0 +1,89 @@
+# Lightest to darkest
+#     Spaceship
+# 0.569,0.729,0.698     Spaceship
+# 0.322,0.565,0.518     Spaceship
+# 0.157,0.435,0.38      BG
+# 0.043,0.306,0.255     Canon
+# 0,0.176,0.141         Planet
+
+
+
+<GameDisplay>:
+    canvas:
+        Color:
+            rgb: 1,1,1
+        Rectangle:
+            source: 'img/sky.png'
+            pos: self.pos
+            size: self.size
+
+
+<Trace>:
+    points: [(100,100), (200,200)]
+    canvas:
+        Color:
+            rgb: 0.8,0.8,0.8,1.0
+        Line:
+            points: self.points
+
+
+<Planet>:
+    radius: 2
+    img: 'img/planets/Earth.png'
+
+    canvas:
+        Color:
+            rgb: 1,1,1
+        Rectangle:
+            source: self.img
+            size: self.radius*2, self.radius*2
+            pos: self.pos[0] - self.radius, self.pos[1] - self.radius
+
+
+<Canon>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: -self.angle
+            axis: 0, 0, 1
+            origin: self.pos
+
+    canvas:
+        Color:
+            rgb: 0.8,0.8,0.8
+        Rectangle:
+            size: 10,28
+            pos: self.pos[0] - 5, self.pos[1]
+
+    canvas.after:
+        PopMatrix
+
+
+<SpaceShip>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: -self.angle
+            axis: 0, 0, 1
+            origin: self.pos
+
+    canvas:
+        Color:
+            rgb: 1,1,1
+        Rectangle:
+            source: 'img/rocket_small.png'
+            size: 30,35
+            pos: self.pos[0] - 15, self.pos[1] - 17.5
+
+    canvas.after:
+        PopMatrix
+
+
+<PredictionSign>:
+    radius: 2
+    canvas:
+        Color:
+            rgb: 0.9,0.9,0.9
+        Ellipse:
+            size: self.radius*2, self.radius*2
+            pos: self.pos[0] - self.radius, self.pos[1] - self.radius
