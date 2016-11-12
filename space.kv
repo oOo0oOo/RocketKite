@@ -6,7 +6,7 @@
 # 0.043,0.306,0.255     Canon
 # 0,0.176,0.141         Planet
 
-
+#:import math math
 
 <GameDisplay>:
     canvas:
@@ -60,10 +60,11 @@
 
 
 <SpaceShip>:
+    velocity: 3,10
     canvas.before:
         PushMatrix
         Rotate:
-            angle: -self.angle
+            angle: (270 + math.degrees(math.atan2(float(self.velocity[1]),self.velocity[0])))%360
             axis: 0, 0, 1
             origin: self.pos
 

@@ -60,16 +60,19 @@ class GameDisplay(Widget):
         self.control = -1
 
         # Add Buttons
-        self.accelerate_btn = Button(text = 'up', size = (200, 100), font_size = 0,
+        self.accelerate_btn = Button(text = 'down', size = (150, 100), font_size = 12,
             background_color = [1.0]*3+[0.7],
             pos = (900, 20), on_press = self.btn_press, on_release = self.btn_press)
-        self.accelerate_btn.foreground_color = (0.8,0.8,0.8,1.0)
 
-        self.left_btn = Button(text = 'left', size = (150, 100), font_size = 0,
+        self.brake_btn = Button(text = 'up', size = (150, 100), font_size = 12,
+            background_color = [1.0]*3+[0.7],
+            pos = (1075, 20), on_press = self.btn_press, on_release = self.btn_press)
+
+        self.left_btn = Button(text = 'left', size = (150, 100), font_size = 12,
             background_color = [1.0]*3+[0.7],
             pos = (100, 20), on_press = self.btn_press, on_release = self.btn_press)
 
-        self.right_btn = Button(text = 'right', size = (150, 100), font_size = 0,
+        self.right_btn = Button(text = 'right', size = (150, 100), font_size = 12,
             background_color = [1.0]*3+[0.7],
             pos = (275, 20), on_press = self.btn_press, on_release = self.btn_press)
 
@@ -78,6 +81,7 @@ class GameDisplay(Widget):
             pos = (20, self.size_win[1] - 80), on_press = self.btn_press)
 
         self.add_widget(self.accelerate_btn)
+        self.add_widget(self.brake_btn)
         self.add_widget(self.left_btn)
         self.add_widget(self.right_btn)
         self.add_widget(self.reset_btn)
@@ -121,20 +125,26 @@ class GameDisplay(Widget):
             self.launch_spaceship()
 
         # Control spaceship
-        elif self.control > -1:
+        if self.control > -1:
+            # Process user input
+            self.spaceships[self.control].user_input(btn, btn_down)
+
             # Accelerate if up
-            if btn == 'up':
-                self.spaceships[self.control].accelerate = btn_down
+            # if btn == 'up':
+            #     self.spaceships[self.control].accelerate = btn_down
 
-            elif btn in ('left', 'right'):
-                if not btn_down:
-                    self.spaceships[self.control].turn = 0
+            # if btn == 'down':
+            #     self.spaceships[self.control].accelerate = btn_down
 
-                elif btn == 'left':
-                    self.spaceships[self.control].turn = -1
+            # elif btn in ('left', 'right'):
+            #     if not btn_down:
+            #         self.spaceships[self.control].turn = 0
 
-                elif btn == 'right':
-                    self.spaceships[self.control].turn = 1
+            #     elif btn == 'left':
+            #         self.spaceships[self.control].turn = -1
+
+            #     elif btn == 'right':
+            #         self.spaceships[self.control].turn = 1
 
 
     def launch_spaceship(self):
@@ -147,9 +157,7 @@ class GameDisplay(Widget):
 
         # Create a new SpaceShip
         pos = [pos[0] + vect[0], pos[1] + vect[1]]
-        spaceship = SpaceShip(pos = pos, velocity=vect,
-            angle = angle, acceleration = self.params['acc'],
-            acc_ang = self.params['acc_angular'])
+        spaceship = SpaceShip(pos = pos, velocity=vect, acceleration = self.params['acc'])
 
         self.add_widget(spaceship)
         self.spaceships.append(spaceship)

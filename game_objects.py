@@ -84,31 +84,48 @@ class Trace(Widget):
 
 
 class SpaceShip(Widget):
-    angle = NumericProperty(0)
-    def __init__(self, pos = (0,0), velocity = [10,10], angle = 0,
-        acceleration = 0, acc_ang = 0, **kwargs):
-
+    velocity = ListProperty([10,10])
+    def __init__(self, pos = (0,0), velocity = [10,10], acceleration = 0, **kwargs):
         super(SpaceShip, self).__init__(**kwargs)
-        self.angle = angle
         self.velocity = velocity
         self.pos = pos
         self.acc = acceleration
-        self.acc_ang = acc_ang
-
-        self.accelerate = False
-        self.turn = 0 # -1, 0, 1 (clockwise)
-
         assert type(velocity) == list
+        self.active_boosters = {i:False for i in ['up', 'down', 'left', 'right']}
+        self.dir_angles = {'up': 0, 'right': 90, 'down': 180, 'left': 270}
+
+
+    def user_input(self, btn, btn_down):
+        self.active_boosters[btn] = btn_down
+
+
+    def get_angle(self):
+        '''
+            0 is north, 90 is east (right)
+            This is a variant of the formula used in .kv: 0 is north, 90 is west
+                (270 + angle...)
+        '''
+        angle = math.atan2(float(self.velocity[1]),self.velocity[0])
+        angle = (90 - math.degrees(angle))%360
+
+        return angle
 
 
     def update(self, dt):
-        # Boost
-        if self.accelerate:
-            abs_angle = math.radians((360+self.angle)%360)
-            self.velocity[0] += math.sin(abs_angle) * dt * self.acc
-            self.velocity[1] += math.cos(abs_angle) * dt * self.acc
+        '''
+            Handles the thrusters activated through user input
+        '''
+        # Angle is forward angle
+        abs_angle = self.get_angle()
 
-        # Turn
-        if self.turn in (-1, 1):
-            self.angle += 360 + (self.turn * dt * self.acc_ang)
-            self.angle %= 360
+        # Calculate thrust vector
+        vel = [0,0]
+        for t, act in self.active_boosters.items():
+            if act:
+                a = self.dir_angles[t]
+                angle = math.radians(abs_angle + a)
+                vel[0] += math.sin(angle) * dt * self.acc
+                vel[1] += math.cos(angle) * dt * self.acc
+
+        self.velocity[0] += vel[0]
+        self.velocity[1] += vel[1]

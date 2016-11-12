@@ -62,20 +62,8 @@ class SpaceApp(App):
 
 
     def hook_keyboard(self,window,key,*largs):
-        # Up
-        if key == 273:
-            self.game_menu.get_screen('game').game.btn_press(key_press = 'up')
-
-        # Left
-        elif key == 276:
-            self.game_menu.get_screen('game').game.btn_press(key_press = 'left')
-
-        # Right
-        elif key == 275:
-            self.game_menu.get_screen('game').game.btn_press(key_press = 'right')
-
         # back button behaviour
-        elif key == 27:
+        if key == 27:
             return False
 
         # menu key behaviour (nothing)
