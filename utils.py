@@ -51,8 +51,12 @@ def random_sequential():
         'checkpoint_hl': c[6],
 
         'trace_bg': c[0],
-        'canon_bg': c[4],
+        'canon_bg': c[6],
         'main_bg': c[3],
+
+        'btn_bg': c[6],
+        'btn_hl': c[2],
+        'icon_bg': c[6]
     }
     return theme
 

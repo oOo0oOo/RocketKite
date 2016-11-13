@@ -106,7 +106,6 @@
         PopMatrix
 
 
-
 <Checkpoint>:
     points: 100,100,200,200
     color_bg: 0.5,0.5,0.5
@@ -119,3 +118,41 @@
         Line:
             points: self.points
             width: 2
+
+
+<FlatButton>:
+    color_bg: 0.5,0.5,0.5
+    color_hl: 0.9,0.9,0.9
+    btn_img: ''
+    down: False
+
+    canvas.before:
+        Color:
+            rgb: self.color_hl if self.down else self.color_bg
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    canvas.after:
+        Color:
+            rgb: self.color_bg if self.down else self.color_hl
+
+        # !! Image has to be the same aspect ratio as btn in game...
+        Rectangle:
+            source: self.btn_img
+            size: self.size[0] * 0.8, self.size[1] * 0.8
+            pos: self.pos[0] + self.size[0]*0.1, self.pos[1] + self.size[1]*0.1
+
+
+<Icon>:
+    color_bg: 0.5,0.5,0.5
+    img: ''
+
+    canvas:
+        Color:
+            rgb: self.color_bg
+
+        Rectangle:
+            source: self.img
+            size: self.size
+            pos: self.pos

@@ -4,7 +4,6 @@ import random
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.properties import ListProperty
 
@@ -81,29 +80,36 @@ class GameDisplay(Widget):
             self.checkpoints.append(cp)
 
         # Add Buttons
-        self.accelerate_btn = Button(text = 'up', size = (200, 100), font_size = 12,
-            background_color = [1.0]*3+[0.7],
-            pos = (980, 20), on_press = self.btn_press, on_release = self.btn_press)
+        self.accelerate_btn = FlatButton(btn_callback = self.btn_press,
+            btn_name = 'up', size = (200, 100), pos = (980, 20))
 
-        self.brake_btn = Button(text = 'down', size = (200, 100), font_size = 12,
-            background_color = [1.0]*3+[0.7],
-            pos = (100, 20), on_press = self.btn_press, on_release = self.btn_press)
+        self.brake_btn = FlatButton(btn_callback = self.btn_press,
+            btn_name = 'down', size = (200, 100), pos = (100, 20))
 
-        self.reset_btn = Button(text = 'reset', size = (60, 60), font_size = 0,
-            background_color = [1.0]*3+[0.7],
-            pos = (20, self.size_win[1] - 80), on_press = self.btn_press)
+        self.pause_btn = FlatButton(btn_callback = self.btn_press,
+            btn_name = 'pause', size = (60, 60), pos = (self.size_win[0] - 80, self.size_win[1] - 80))
 
         self.add_widget(self.accelerate_btn)
         self.add_widget(self.brake_btn)
-        self.add_widget(self.reset_btn)
+        self.add_widget(self.pause_btn)
 
         # Reward and time display
-        self.reward_disp = Label(text = '101', font_size=38,
-            center = (150, 680))
+        h1 = self.size_win[1] - 28
+        h2 = self.size_win[1] - 75
         self.time_disp = Label(text = '546.3', font_size=32,
-            center = (900, 680))
+            center = (90, h1))
+        self.reward_disp = Label(text = '101', font_size=32,
+            center = (90, h2))
+
+        self.time_img = Icon(img = 'img/icons/time.png',
+            pos = (15, h1-14), size = (28,28))
+        self.reward_img = Icon(img = 'img/icons/kite.png',
+            pos = (15, h2-14), size = (28,28))
+
         self.add_widget(self.reward_disp)
         self.add_widget(self.time_disp)
+        self.add_widget(self.time_img)
+        self.add_widget(self.reward_img)
 
         # Add trace
         self.trace = Trace(n_points = 359)
@@ -140,9 +146,9 @@ class GameDisplay(Widget):
 
     def btn_press(self, *args, **kwargs):
         btn_down = args[0].state == 'down'
-        btn = args[0].text
+        btn = args[0].name # This is defined to .text is not neede anymore
 
-        if btn == 'reset' and btn_down:
+        if btn == 'pause' and btn_down:
             self.load_level()
             return
 
@@ -358,6 +364,15 @@ class GameDisplay(Widget):
         for p in self.checkpoints:
             p.color_bg = theme['checkpoint_bg']
             p.color_hl = theme['checkpoint_hl']
+
+        for btn in [self.accelerate_btn, self.brake_btn, self.pause_btn]:
+            btn.color_bg = theme['btn_bg']
+            btn.color_hl = theme['btn_hl']
+
+        self.time_img.color_bg = theme['icon_bg']
+        self.reward_img.color_bg = theme['icon_bg']
+        self.time_disp.color = list(theme['icon_bg']) + [1]
+        self.reward_disp.color = list(theme['icon_bg']) + [1]
 
         self.canon.color_bg = theme['canon_bg']
         self.trace.color_bg = theme['trace_bg']

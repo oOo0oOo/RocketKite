@@ -1,5 +1,6 @@
 from kivy.properties import NumericProperty, StringProperty, ListProperty, BooleanProperty
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from kivy.animation import Animation
 
 import math
@@ -29,6 +30,7 @@ class Canon(Widget):
         super(Canon, self).__init__(**kwargs)
         self.angle = angle
         self.max_angle = max_angle
+        self.center_angle = float(angle)
 
         # The aim movement of the canon
         t = 0.5
@@ -42,6 +44,10 @@ class Canon(Widget):
 
     def start_launch(self):
         self.opacity = 1.0
+
+        # Set angle in middle
+        self.angle = self.center_angle
+
         # Animate the angle of the canon
         self.anim.start(self)
 
@@ -136,3 +142,41 @@ class Checkpoint(Widget):
         self.points = points
         self.reward = reward
         self.active = True
+
+
+class Icon(Widget):
+    color_bg = ListProperty([0.1,0.1,0.1])
+    img = StringProperty('')
+
+    def __init__(self, img = '', **kwargs):
+        super(Icon, self).__init__(**kwargs)
+        self.img = img
+
+
+class FlatButton(Widget):
+    color_bg = ListProperty([0.1,0.1,0.1])
+    color_hl = ListProperty([0.8,0.8,0.8])
+    btn_img = StringProperty('')
+    down = BooleanProperty(False)
+
+    def __init__(self, btn_callback, btn_name = '', **kwargs):
+        super(FlatButton, self).__init__(**kwargs)
+        self.btn_callback = btn_callback
+
+        self.btn = Button(on_press = self._btn_callback,
+            on_release = self._btn_callback, **kwargs)
+        self.btn.name = btn_name
+
+        if btn_name:
+            self.btn_img = 'img/buttons/{}.png'.format(btn_name)
+
+        self.btn.background_color = 1,1,1
+        self.btn.background_normal = ''
+        self.btn.background_down = ''
+
+        self.add_widget(self.btn)
+
+
+    def _btn_callback(self, *args, **kwargs):
+        self.down = args[0].state == 'down'
+        self.btn_callback(*args, **kwargs)
