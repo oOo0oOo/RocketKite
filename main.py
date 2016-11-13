@@ -8,6 +8,11 @@ from time import sleep
 from math import hypot
 from random import randrange
 
+try:
+    import cPickle as pickle
+except:
+    import pickle
+
 from kivy.config import Config
 
 # Screen resolution and
@@ -39,8 +44,8 @@ class GameScreen(Screen):
         self.game = GameDisplay()
         self.add_widget(self.game)
 
-    def load_level(self, level):
-        self.game.load_level(level)
+    def load_level(self, level, current_highscore):
+        self.game.load_level(level, current_highscore)
 
     def update(self, dt):
         self.game.update(dt)
@@ -48,8 +53,9 @@ class GameScreen(Screen):
     def on_pre_enter(self, *args):
         self.game.start_game_clock()
 
-    def return_to_main(self):
+    def return_to_main(self, new_highscore):
         self.game.pause_game_clock()
+        self.parent.get_screen('main').finished_game(new_highscore)
         self.parent.current = 'main'
 
 
@@ -62,16 +68,22 @@ class MainScreen(Screen):
                 row_default_height = 250, row_force_default = True,
                 spacing = 20, padding = 20)
 
-        btns = []
+        # Load highscore and check which levels are available
+        self.highscore = self.load_highscore()
+        if not self.highscore:
+            self.highscore = {i: (-1,-1) for i in range(len(progression_levels))}
+
+        # Make some btns
+        self.btns = []
         for i, (name, __) in enumerate(progression_levels):
             btn_img = 'img/maps/{}.png'.format(name)
 
             btn = Button(on_press = self.start_level)
-            btn.background_color = 0.2,0.2,0.2,1.0
             btn.background_normal = btn_img
             btn.background_down = ''
             btn.name = i
             btn_l.add_widget(btn)
+            self.btns.append(btn)
 
         title = Label(text = 'ROCKET KITE', font_size = 75, size_hint = (1,0.3),
             color = (0.2,0.2,0.2, 1.0))
@@ -80,12 +92,62 @@ class MainScreen(Screen):
 
         self.add_widget(main_l)
 
+        self.current_game = -1
+
+        self.update_btns()
+
+
+    def get_available_maps(self):
+        solved = [self.highscore[i][0] != -1 for i in range(len(progression_levels))]
+        return [True] + solved[:-1] # Can play one level more
+
+
+    def update_btns(self):
+        for a, btn in zip(self.get_available_maps(), self.btns):
+            if a:
+                btn.background_color = 0.2,0.2,0.2,1.0
+            else:
+                btn.background_color = 0.6,0.6,0.6,1.0
+
 
     def start_level(self, btn):
-        par = self.parent
-        screen = par.get_screen('game')
-        screen.load_level(progression_levels[btn.name][1])
-        par.current = 'game'
+        # Only if level available
+        if self.get_available_maps()[btn.name]:
+            self.current_game = btn.name
+            par = self.parent
+            screen = par.get_screen('game')
+            hs = self.highscore[self.current_game]
+            screen.load_level(progression_levels[btn.name][1], hs)
+            par.current = 'game'
+
+
+    def finished_game(self, new_highscore):
+        if self.highscore[self.current_game] != new_highscore:
+            self.highscore[self.current_game] = new_highscore
+            self.save_highscore()
+            self.update_btns()
+
+        self.current_game = -1
+
+
+    def load_highscore(self, path = 'highscore.kite'):
+        try:
+            hs = pickle.load(open(path, 'rb'))
+            print 'Loaded highscores:', path
+            return hs
+        except:
+            print 'Could not load highscores:', path
+            return False
+
+
+    def save_highscore(self, path = 'highscore.kite'):
+        try:
+            pickle.dump(self.highscore, open(path, 'wb'))
+            print 'Saved highscores:', path
+        except:
+            print 'Could not save highscores:', path
+
+
 
 
 class GameMenu(ScreenManager):

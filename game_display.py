@@ -17,14 +17,16 @@ class GameDisplay(Widget):
     def __init__(self, **kwargs):
         super(GameDisplay, self).__init__(**kwargs)
         self.paused = True
+        self.current_highscore = [-1,-1]
         self.load_level()
 
 
     def return_to_main(self):
-        self.parent.return_to_main()
+        self.parent.return_to_main(tuple(self.current_highscore))
 
 
-    def load_level(self, params = False):
+    def load_level(self, params = False, current_highscore = (-1,-1)):
+        self.current_highscore = list(current_highscore)
         self.clear_widgets()
         self.pause_game_clock()
 
@@ -299,7 +301,6 @@ class GameDisplay(Widget):
                                 angle = (270-angle)%360
 
                                 if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
-                                    print 'Got checkpoint', c, angle
                                     self.last_checkpoint = c
 
                                     # Change active checkpoints (color)
@@ -327,6 +328,24 @@ class GameDisplay(Widget):
                 self.remove_widget(self.kite)
                 self.kite = None
 
+                # Check if new highscore (not in first round)
+                faster = False
+                points = False
+                if self.time_complete_checkpoints != -1:
+                    if self.current_highscore[0] == -1:
+                        faster = True
+                        self.current_highscore[0] = self.time_complete_checkpoints
+
+                    elif self.time_complete_checkpoints < self.current_highscore[0]:
+                        faster = True
+                        self.current_highscore[0] = self.time_complete_checkpoints
+
+                if self.reward != -1 and self.reward > self.current_highscore[1]:
+                    points = True
+                    self.current_highscore[1] = self.reward
+
+                if faster or points:
+                    print 'New Highscore', faster, points, self.current_highscore
                 self.start_launch()
 
             # Update Trace

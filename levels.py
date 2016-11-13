@@ -37,7 +37,7 @@ one_planet_level = {
     'planet_img': ('city1',),
 
     # Rocket data
-    'acc': 0.08, # dist / s
+    'acc': 0.068, # dist / s
 
     # Canon data
     'canon_planet': 0,
@@ -179,8 +179,8 @@ progression_cycle = it.cycle([one_planet_level, two_planet_level,
 
 progression_levels = [
     ['one_planet', one_planet_level],
-    ['two_planet', two_planet_level],
     ['planet_moon', moon_level],
+    ['two_planet', two_planet_level],
     ['planet_moon_planet', planet_moon_planet_level],
     ['triple_planet', triple_planet_level]
 ]
