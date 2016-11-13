@@ -6,12 +6,15 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.properties import ListProperty
 
 from game_objects import *
 from levels import progression_levels
+from utils import random_diverging, random_sequential
 
 
 class GameDisplay(Widget):
+    color_bg = ListProperty([0.5,0.5,0.5])
     def __init__(self, **kwargs):
         super(GameDisplay, self).__init__(**kwargs)
         self.load_level()
@@ -37,8 +40,8 @@ class GameDisplay(Widget):
             tp = self.transform_pos(pos)
             self.planet_pos.append(tp)
             rad = self.scale_dist(params['planet_radius'][i])
-
-            self.planets.append(Planet(radius = rad, pos = tp))
+            img = params['planet_img'][i]
+            self.planets.append(Planet(radius = rad, pos = tp, img = img))
             self.add_widget(self.planets[-1])
 
             # Calculate the canon pos
@@ -120,6 +123,10 @@ class GameDisplay(Widget):
         self.spaceships = []
         self.control = -1
 
+        # Random scheme
+        theme = random_sequential()
+        self.set_color_theme(theme)
+
         # This is really needed!
         self.start_launch()
 
@@ -198,6 +205,10 @@ class GameDisplay(Widget):
 
         # Enable trace
         self.trace.opacity = 1.0
+
+        # Set a new theme
+        theme = random_sequential()
+        self.set_color_theme(theme)
 
 
     def start_launch(self):
@@ -343,34 +354,21 @@ class GameDisplay(Widget):
         return vectors
 
 
-    # def update_prediction(self, pos, vel, dt = 0.01, n_points = 3, n_skip = 5):
-    #     pm = self.params['planet_mass']
-    #     G = self.params['gravity_constant']
-    #     pos = list(tuple(pos))
-    #     vel = list(tuple(vel))
-    #     points = []
-    #     for i in range(n_points + n_points * n_skip):
-    #         tot_force = [0,0]
-    #         for j, p_pos in enumerate(self.planet_pos):
-    #             vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
-    #             dist = math.hypot(vect[0], vect[1]) * self.scale_factor
-    #             gravity = G * pm[j] / (dist**2)
-    #             tot_force[0] += dt * vect[0] * gravity / dist
-    #             tot_force[1] += dt * vect[1] * gravity / dist
+    def set_color_theme(self, theme):
+        if len(self.spaceships) > 0:
+            self.spaceships[-1].color_bg = theme['kite_bg']
+            self.spaceships[-1].color_hl = theme['kite_hl']
 
-    #         pos[0] = pos[0] + vel[0]
-    #         pos[1] = pos[1] + vel[1]
+        for p in self.planets:
+            p.color_bg = theme['planet_bg']
+            p.color_hl = theme['planet_hl']
 
-    #         vel[0] += tot_force[0]
-    #         vel[1] += tot_force[1]
+        for p in self.checkpoints:
+            p.color_bg = theme['checkpoint_bg']
 
-    #         if not i%n_skip:
-    #             if math.hypot(*tot_force) < 1.0:
-    #                 points.append(tuple(pos))
-    #             else:
-    #                 points.append((-50,-50))
-
-    #     self.prediction.set_points(points)
+        self.canon.color_bg = theme['canon_bg']
+        self.trace.color_bg = theme['trace_bg']
+        self.color_bg = theme['main_bg']
 
 
     def transform_pos(self, pos):

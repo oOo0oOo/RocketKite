@@ -32,8 +32,9 @@ one_planet_level = {
 
     # Planet data
     'planet_pos': ((550,390), ),
-    'planet_radius': (60,),
+    'planet_radius': (75,),
     'planet_mass': (280,),
+    'planet_img': ('city1',),
 
     # Rocket data
     'acc': 0.1, # dist / s
@@ -42,12 +43,12 @@ one_planet_level = {
     'canon_planet': 0,
     'canon_planet_angle': 10, # Which position on planet (90 = east)
     'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 9,
+    'canon_velocity': 8,
 
     # Checkpoint data
     'checkpoint_planet': (0,0),
     'checkpoint_angle': (160,300),
-    'checkpoint_segment': ((100,180),(200,300)),
+    'checkpoint_segment': ((125,205),(250,380)),
     'checkpoint_reward': (1,1)
 
 }

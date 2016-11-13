@@ -5,19 +5,26 @@ from kivy.animation import Animation
 import math
 import random
 
-planets = ['Venus', 'Earth', 'Mars', 'Jupiter', 'Neptune', 'Pluto']
 
 class Planet(Widget):
     radius = NumericProperty(2)
-    img = StringProperty('')
+    img_bg = StringProperty('')
+    img_hl = StringProperty('')
+    color_bg = ListProperty([0.5,0.5,0.5])
+    color_hl = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, radius = 2, **kwargs):
+    def __init__(self, radius = 2, img = 'mountain1', **kwargs):
         super(Planet, self).__init__(**kwargs)
         self.radius = radius
-        self.img = 'img/planets/{}.png'.format(random.choice(planets))
+
+        self.img_bg = 'img/planets/' + img + '_bg.png'
+        self.img_hl = 'img/planets/' + img + '_hl.png'
+
 
 class Canon(Widget):
     angle = NumericProperty(0)
+    color_bg = ListProperty([0.5,0.5,0.5])
+
     def __init__(self, angle = 0, max_angle = 10, **kwargs):
         super(Canon, self).__init__(**kwargs)
         self.angle = angle
@@ -67,6 +74,8 @@ class Prediction(Widget):
 
 class Trace(Widget):
     points = ListProperty([])
+    color_bg = ListProperty([0.5,0.5,0.5])
+
     def __init__(self, n_points = 100, **kwargs):
         super(Trace, self).__init__(**kwargs)
         self.n_points = n_points
@@ -85,6 +94,9 @@ class Trace(Widget):
 
 class SpaceShip(Widget):
     velocity = ListProperty([10,10])
+    color_bg = ListProperty([0.5,0.5,0.5])
+    color_hl = ListProperty([0.5,0.5,0.5])
+
     def __init__(self, pos = (0,0), velocity = [10,10], acceleration = 0, **kwargs):
         super(SpaceShip, self).__init__(**kwargs)
         self.velocity = velocity
@@ -133,6 +145,9 @@ class SpaceShip(Widget):
 
 class Checkpoint(Widget):
     points = ListProperty([])
+    color_bg = ListProperty([0.5,0.5,0.5])
+    color_hl = ListProperty([0.5,0.5,0.5])
+
     def __init__(self, points, reward, **kwargs):
         super(Checkpoint, self).__init__(**kwargs)
         self.points = points

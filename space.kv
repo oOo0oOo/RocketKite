@@ -9,38 +9,55 @@
 #:import math math
 
 <GameDisplay>:
+    color_bg: 0.5,0.5,0.5
     canvas:
         Color:
-            rgb: 1,1,1
+            rgb: self.color_bg
         Rectangle:
-            source: 'img/sky.png'
             pos: self.pos
             size: self.size
 
 
 <Trace>:
     points: [(100,100), (200,200)]
+    color_bg: 0.5,0.5,0.5
     canvas:
         Color:
-            rgb: 0.8,0.8,0.8,1.0
+            rgb: self.color_bg
         Line:
+            width: 1.05
             points: self.points
 
 
 <Planet>:
     radius: 2
-    img: 'img/planets/Earth.png'
+    img_bg: 'img/planets/mountain1_bg.png'
+    img_hl: 'img/planets/mountain1_hl.png'
+
+    color_bg: 0.5,0.5,0.5
+    color_hl: 0.5,0.5,0.5
 
     canvas:
+        # BG
         Color:
-            rgb: 1,1,1
+            rgb: self.color_bg
         Rectangle:
-            source: self.img
+            source: self.img_bg
+            size: self.radius*2, self.radius*2
+            pos: self.pos[0] - self.radius, self.pos[1] - self.radius
+
+        # Highlights
+        Color:
+            rgb: self.color_hl
+        Rectangle:
+            source: self.img_hl
             size: self.radius*2, self.radius*2
             pos: self.pos[0] - self.radius, self.pos[1] - self.radius
 
 
 <Canon>:
+    color_bg: 0.5,0.5,0.5
+
     canvas.before:
         PushMatrix
         Rotate:
@@ -50,8 +67,8 @@
 
     canvas:
         Color:
-            rgb: 0.8,0.8,0.8
-        Rectangle:
+            rgb: self.color_bg
+        Ellipse:
             size: 10,28
             pos: self.pos[0] - 5, self.pos[1]
 
@@ -60,7 +77,10 @@
 
 
 <SpaceShip>:
+    color_bg: 0.5,0.5,0.5
+    color_hl: 0.5,0.5,0.5
     velocity: 3,10
+
     canvas.before:
         PushMatrix
         Rotate:
@@ -72,9 +92,23 @@
         Color:
             rgb: 1,1,1
         Rectangle:
-            source: 'img/rocket_small.png'
-            size: 30,35
-            pos: self.pos[0] - 15, self.pos[1] - 17.5
+            source: 'img/kite1_rocket.png'
+            size: 48,54
+            pos: self.pos[0] - 24, self.pos[1] - 38
+
+        Color:
+            rgb: self.color_bg
+        Rectangle:
+            source: 'img/kite1_bg.png'
+            size: 48,54
+            pos: self.pos[0] - 24, self.pos[1] - 38
+
+        Color:
+            rgb: self.color_hl
+        Rectangle:
+            source: 'img/kite1_hl.png'
+            size: 48,54
+            pos: self.pos[0] - 24, self.pos[1] - 38
 
     canvas.after:
         PopMatrix
@@ -92,9 +126,11 @@
 
 <Checkpoint>:
     points: 100,100,200,200
+    color_bg: 0.5,0.5,0.5
+
     canvas:
         Color:
-            rgb: 0.8, 0.8, 0.8
+            rgb: self.color_bg
         Line:
             points: self.points
             width: 2

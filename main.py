@@ -24,7 +24,6 @@ if True:
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, WipeTransition
-
 from game_display import GameDisplay
 
 
