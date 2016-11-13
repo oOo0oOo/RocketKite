@@ -54,24 +54,6 @@ class Canon(Widget):
         return self.pos, angle
 
 
-class PredictionSign(Widget):
-    def __init__(self, **kwargs):
-        super(PredictionSign, self).__init__(**kwargs)
-
-
-class Prediction(Widget):
-    def __init__(self, n_points = 5, **kwargs):
-        super(Prediction, self).__init__(**kwargs)
-        self.n_points = n_points
-        self.points = [PredictionSign() for p in range(n_points)]
-        [self.add_widget(p) for p in self.points]
-
-
-    def set_points(self, positions):
-        for p, pos in zip(self.points, positions):
-            p.pos = pos
-
-
 class Trace(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])
@@ -92,19 +74,19 @@ class Trace(Widget):
         self.points = []
 
 
-class SpaceShip(Widget):
+class Kite(Widget):
     velocity = ListProperty([10,10])
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, pos = (0,0), velocity = [10,10], acceleration = 0, **kwargs):
-        super(SpaceShip, self).__init__(**kwargs)
-        self.velocity = velocity
-        self.pos = pos
-        self.acc = acceleration
-        assert type(velocity) == list
-        self.active_boosters = {i:False for i in ['up', 'down', 'left', 'right']}
-        self.dir_angles = {'up': 0, 'right': 90, 'down': 180, 'left': 270}
+    def __init__(self, **kwargs):
+        super(Kite, self).__init__(**kwargs)
+        self.velocity = kwargs['velocity']
+        self.pos = kwargs['pos']
+        self.acc = kwargs['acceleration']
+
+        self.active_boosters = {i:False for i in ['up', 'down']}
+        self.dir_angles = {'up': 0, 'down': 180}
 
 
     def user_input(self, btn, btn_down):

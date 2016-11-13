@@ -81,21 +81,13 @@ class GameDisplay(Widget):
             self.checkpoints.append(cp)
 
         # Add Buttons
-        self.accelerate_btn = Button(text = 'down', size = (150, 100), font_size = 12,
+        self.accelerate_btn = Button(text = 'up', size = (200, 100), font_size = 12,
             background_color = [1.0]*3+[0.7],
-            pos = (900, 20), on_press = self.btn_press, on_release = self.btn_press)
+            pos = (980, 20), on_press = self.btn_press, on_release = self.btn_press)
 
-        self.brake_btn = Button(text = 'up', size = (150, 100), font_size = 12,
-            background_color = [1.0]*3+[0.7],
-            pos = (1075, 20), on_press = self.btn_press, on_release = self.btn_press)
-
-        self.left_btn = Button(text = 'left', size = (150, 100), font_size = 12,
+        self.brake_btn = Button(text = 'down', size = (200, 100), font_size = 12,
             background_color = [1.0]*3+[0.7],
             pos = (100, 20), on_press = self.btn_press, on_release = self.btn_press)
-
-        self.right_btn = Button(text = 'right', size = (150, 100), font_size = 12,
-            background_color = [1.0]*3+[0.7],
-            pos = (275, 20), on_press = self.btn_press, on_release = self.btn_press)
 
         self.reset_btn = Button(text = 'reset', size = (60, 60), font_size = 0,
             background_color = [1.0]*3+[0.7],
@@ -103,8 +95,6 @@ class GameDisplay(Widget):
 
         self.add_widget(self.accelerate_btn)
         self.add_widget(self.brake_btn)
-        self.add_widget(self.left_btn)
-        self.add_widget(self.right_btn)
         self.add_widget(self.reset_btn)
 
         # Reward and time display
@@ -119,9 +109,8 @@ class GameDisplay(Widget):
         self.trace = Trace(n_points = 359)
         self.add_widget(self.trace)
 
-        # No spaceships yet
-        self.spaceships = []
-        self.control = -1
+        # No kite yet
+        self.kite = None
 
         # Random scheme
         theme = random_sequential()
@@ -159,32 +148,15 @@ class GameDisplay(Widget):
 
         # Trigger launch
         if self.launching and btn_down:
-            self.launch_spaceship()
+            self.launch_kite()
 
-        # Control spaceship
-        if self.control > -1:
+        # Control kite
+        elif not self.launching:
             # Process user input
-            self.spaceships[self.control].user_input(btn, btn_down)
-
-            # Accelerate if up
-            # if btn == 'up':
-            #     self.spaceships[self.control].accelerate = btn_down
-
-            # if btn == 'down':
-            #     self.spaceships[self.control].accelerate = btn_down
-
-            # elif btn in ('left', 'right'):
-            #     if not btn_down:
-            #         self.spaceships[self.control].turn = 0
-
-            #     elif btn == 'left':
-            #         self.spaceships[self.control].turn = -1
-
-            #     elif btn == 'right':
-            #         self.spaceships[self.control].turn = 1
+            self.kite.user_input(btn, btn_down)
 
 
-    def launch_spaceship(self):
+    def launch_kite(self):
         pos, angle = self.canon.launch()
 
         # Initial velocity in scaled coordinates
@@ -192,18 +164,13 @@ class GameDisplay(Widget):
         r = math.radians(angle)
         vect = [vel * math.sin(r), vel * math.cos(r)]
 
-        # Create a new SpaceShip
-        pos = [pos[0] + vect[0], pos[1] + vect[1]]
-        spaceship = SpaceShip(pos = pos, velocity=vect, acceleration = self.params['acc'])
+        # Create a new kite
+        p = [pos[0] + vect[0], pos[1] + vect[1]]
+        self.kite = Kite(pos = p, velocity=vect, acceleration = self.params['acc'])
+        self.add_widget(self.kite)
 
-        self.add_widget(spaceship)
-        self.spaceships.append(spaceship)
-
-        # And control it
-        self.control = len(self.spaceships) - 1
+        # End launching sequence, show trace
         self.launching = False
-
-        # Enable trace
         self.trace.opacity = 1.0
 
         # Set a new theme
@@ -212,21 +179,34 @@ class GameDisplay(Widget):
 
 
     def start_launch(self):
-        self.canon.start_launch()
-        self.launching = True
-        self.control = -1
-        self.trace.opacity = 0.0
-        self.last_checkpoint = -1
-        self.trace.reset()
+        '''
+            Start launch sequence for new kite:
+                1) Reset all episode stats
+                2) Start canon aim
+                3) Any button triggers launch_kite()
+        '''
+        # Reset episode data
         self.reward = 0
-        self.passed_checkpoint = [False for x in self.params['checkpoint_planet']]
         self.steps = 0
-        self.paused = False
         self.episode_time = 0
+        self.passed_checkpoint = [False for x in self.params['checkpoint_planet']]
         self.time_complete_checkpoints = -1
+        self.last_checkpoint = -1
 
+        # Hide trace, reset text display
+        self.trace.opacity = 0.0
+        self.trace.reset()
         self.time_disp.text = '0'
         self.reward_disp.text = '0'
+
+        # Set random theme
+        theme = random_sequential()
+        self.set_color_theme(theme)
+
+        # We are starting the launch sequence for a new kite
+        self.launching = True
+        self.paused = False
+        self.canon.start_launch()
 
 
     def update(self,dt):
@@ -240,124 +220,120 @@ class GameDisplay(Widget):
         dt *= self.sim_speedup
         self.steps += 1
 
-        # Move all spaceships if not paused
-        if not self.paused:
-            # Get gravity vector for all spaceships
-            gravity = self.get_gravity_vectors(dt)
+        # Move kite if not paused
+        remove_kite = False
 
-            # Update each spaceship
-            to_remove = []
-            for i, spaceship in enumerate(self.spaceships):
-                # Process user inputs
-                spaceship.update(dt)
+        if not self.paused and not self.launching:
+            # Get gravity vector for kite
+            gravity = self.get_gravity_vector(dt)
 
-                # Update velocity
-                spaceship.velocity[0] += gravity[i][0]
-                spaceship.velocity[1] += gravity[i][1]
+            # Process user inputs
+            self.kite.update(dt)
 
-                # Update Position
-                spaceship.pos[0] += dt * spaceship.velocity[0]
-                spaceship.pos[1] += dt * spaceship.velocity[1]
+            # Update velocity
+            self.kite.velocity[0] += gravity[0]
+            self.kite.velocity[1] += gravity[1]
 
-                # Collision: Leave screen
-                if not 0 < spaceship.pos[0] < self.size_win[0]:
-                    to_remove.append(i)
-                elif not 0 < spaceship.pos[1] < self.size_win[1]:
-                    to_remove.append(i)
+            # Update Position
+            self.kite.pos[0] += dt * self.kite.velocity[0]
+            self.kite.pos[1] += dt * self.kite.velocity[1]
 
+            # Collision: Leave screen
+            if not 0 < self.kite.pos[0] < self.size_win[0]:
+                remove_kite = True
+
+            elif not 0 < self.kite.pos[1] < self.size_win[1]:
+                remove_kite = True
+
+            else:
                 # Collision detection: planets
-                for j, p in enumerate(self.planets):
-                    vect = [p.pos[0] - spaceship.pos[0], p.pos[1] - spaceship.pos[1]]
+                p = tuple(self.kite.pos)
+                planet_vect = []
+                planet_dist = []
+                for j, planet in enumerate(self.planets):
+                    vect = [planet.pos[0] - p[0], planet.pos[1] - p[1]]
                     dist = math.hypot(*vect)
-                    if dist < p.radius:
-                        to_remove.append(i)
+
+                    # No need to scale vector bc its only needed for angle calc
+                    planet_vect.append(vect)
+                    planet_dist.append(self.scale_dist(dist))
+
+                    if dist < planet.radius:
+                        remove_kite = True
                         break
 
-                # Collision with other spaceships
-                for k in range(i+1, len(self.spaceships)):
-                    vect = [self.spaceships[k].pos[jjj] - spaceship.pos[jjj] for jjj in range(2)]
-                    dist = math.hypot(*vect)
-                    if dist < 15:
-                        to_remove.append(k)
-                        to_remove.append(i)
+                if not remove_kite:
+                    # Collision with checkpoint
+                    # Collide widget doesnt work:(
+                    pos = self.kite.pos
 
+                    for c, cp in enumerate(self.checkpoints):
+                        # Have to take other checkpoint before retaking this one
+                        # Also prevents multiple rewards during passage of the checkpoint
+                        if not self.last_checkpoint == c:
 
-                # Collision with checkpoint
-                # Collide widget doesnt work:(
-                pos = spaceship.pos
+                            planet_id = self.params['checkpoint_planet'][c]
+                            seg = self.params['checkpoint_segment'][c]
 
-                for c, cp in enumerate(self.checkpoints):
-                    if not self.last_checkpoint == c:
-                        p_pos = self.planet_pos[self.params['checkpoint_planet'][c]]
+                            if seg[0] < planet_dist[planet_id] < seg[1]:
+                                v = planet_vect[planet_id]
+                                angle = math.degrees(math.atan2(v[1],v[0]))
+                                angle = (270-angle)%360
 
-                        # Convert to polar coords around planet
-                        x = pos[0] - p_pos[0]
-                        y = pos[1] - p_pos[1]
+                                if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
+                                    print 'Got checkpoint', c, angle
+                                    self.last_checkpoint = c
 
-                        dist = math.hypot(x,y)
-                        seg = self.params['checkpoint_segment'][c]
+                                    # give reward
+                                    self.reward += self.params['checkpoint_reward'][c]
+                                    self.reward_disp.text = str(self.reward)
 
-                        if seg[0] < dist < seg[1]:
-                            angle = math.degrees(math.atan2(y,x))
-                            angle = (90-angle)%360
-                            if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
-                                self.last_checkpoint = c
+                                    # Log checkpoint and check if first time all checkoints
+                                    not_all = all(self.passed_checkpoint)
+                                    self.passed_checkpoint[c] = True
+                                    if all(self.passed_checkpoint) and not not_all:
+                                        self.time_disp.text = str(round(self.episode_time, 1))
+                                        self.time_complete_checkpoints = self.episode_time
+                                        print 'Completed checkpoints', round(self.episode_time,1)
+                                    break
 
-                                # give reward
-                                self.reward += self.params['checkpoint_reward'][c]
-                                self.reward_disp.text = str(self.reward)
+            # Remove kite if collided
+            if remove_kite:
+                self.remove_widget(self.kite)
+                self.kite = None
 
-                                # Log checkpoint and check if first time all checkoints
-                                not_all = all(self.passed_checkpoint)
-                                self.passed_checkpoint[c] = True
-                                if all(self.passed_checkpoint) and not not_all:
-                                    self.time_disp.text = str(round(self.episode_time, 1))
-                                    self.time_complete_checkpoints = self.episode_time
-                                    print 'Completed checkpoints', round(self.episode_time,1)
-                                break
-
-
-            # Remove collided spaceships
-            for i in reversed(sorted(set(to_remove))):
-                self.remove_widget(self.spaceships[i])
-                del self.spaceships[i]
-
-                # The one under control was destroyed
-                if i == self.control:
-                    self.control = -1
-                    self.start_launch()
+                self.start_launch()
 
             # Update Trace
-            if self.control != -1 and not self.steps%3:
-                pos = self.spaceships[self.control].pos
+            if not self.launching and not self.steps%3:
+                pos = self.kite.pos
                 self.trace.add_point(pos)
 
 
-    def get_gravity_vectors(self, dt):
+    def get_gravity_vector(self, dt):
         '''
-            Calculates vector of gravity for all spaceships
+            Calculates vector of gravity for kite
         '''
         vectors = []
         pm = self.params['planet_mass']
         G = self.params['gravity_constant']
 
-        for j, spaceship in enumerate(self.spaceships):
-            pos = spaceship.pos
-            tot_force = [0,0]
-            for i, p_pos in enumerate(self.planet_pos):
-                vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
-                dist = math.hypot(vect[0], vect[1]) * self.scale_factor
-                gravity = G * pm[i] / (dist**2)
-                tot_force[0] += dt * vect[0] * gravity / dist
-                tot_force[1] += dt * vect[1] * gravity / dist
-            vectors.append(tot_force)
-        return vectors
+        pos = self.kite.pos
+        tot_force = [0,0]
+        for i, p_pos in enumerate(self.planet_pos):
+            vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
+            dist = math.hypot(vect[0], vect[1]) * self.scale_factor
+            gravity = G * pm[i] / (dist**2)
+            tot_force[0] += dt * vect[0] * gravity / dist
+            tot_force[1] += dt * vect[1] * gravity / dist
+
+        return tot_force
 
 
     def set_color_theme(self, theme):
-        if len(self.spaceships) > 0:
-            self.spaceships[-1].color_bg = theme['kite_bg']
-            self.spaceships[-1].color_hl = theme['kite_hl']
+        if self.kite is not None:
+            self.kite.color_bg = theme['kite_bg']
+            self.kite.color_hl = theme['kite_hl']
 
         for p in self.planets:
             p.color_bg = theme['planet_bg']

@@ -37,7 +37,7 @@ one_planet_level = {
     'planet_img': ('city1',),
 
     # Rocket data
-    'acc': 0.1, # dist / s
+    'acc': 0.08, # dist / s
 
     # Canon data
     'canon_planet': 0,
@@ -47,8 +47,8 @@ one_planet_level = {
 
     # Checkpoint data
     'checkpoint_planet': (0,0),
-    'checkpoint_angle': (160,300),
-    'checkpoint_segment': ((125,205),(250,380)),
+    'checkpoint_angle': (180,270),
+    'checkpoint_segment': ((140,220),(250,380)),
     'checkpoint_reward': (1,1)
 
 }
@@ -61,9 +61,10 @@ two_planet_level = {
     'sim_speedup': 30,
 
     # Planet data
-    'planet_pos': ((300,390), (750,390)),
-    'planet_radius': (50,50),
+    'planet_pos': ((280,390), (770,390)),
+    'planet_radius': (70,70),
     'planet_mass': (250,250),
+    'planet_img': ('city1','mountain1'),
 
     # Rocket data
     'acc': 0.1, # dist / s
@@ -72,7 +73,14 @@ two_planet_level = {
     'canon_planet': 0,
     'canon_planet_angle': 68, # Which position on planet (90 = east)
     'canon_max_angle': 60, # How much does it move
-    'canon_velocity': 10
+    'canon_velocity': 7,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,0,1),
+    'checkpoint_angle': (270,90,90),
+    'checkpoint_segment': ((125,250),(228,262),(125,250)),
+    'checkpoint_reward': (1,2,1)
+
 }
 
 
@@ -84,8 +92,9 @@ moon_level = {
 
     # Planet data
     'planet_pos': ((280,390), (850,390)),
-    'planet_radius': (40,20),
+    'planet_radius': (70,30),
     'planet_mass': (200,50),
+    'planet_img': ('city1','mountain1'),
 
     # Rocket data
     'acc': 0.05, # Less than usual to make direct start impossible
@@ -94,7 +103,13 @@ moon_level = {
     'canon_planet': 0,
     'canon_planet_angle': 200, # Which position on planet (90 = east)
     'canon_max_angle': 60, # How much does it move
-    'canon_velocity': 8.25
+    'canon_velocity': 6,
+
+    # Checkpoints
+    'checkpoint_planet': (0,1),
+    'checkpoint_angle': (270,90),
+    'checkpoint_segment': ((125,250),(50,110)),
+    'checkpoint_reward': (1,1)
 }
 
 planet_moon_planet_level = {
@@ -105,8 +120,9 @@ planet_moon_planet_level = {
 
     # Planet data
     'planet_pos': ((200,390), (550,390), (900,390)),
-    'planet_radius': (40,20,40),
+    'planet_radius': (70,30,70),
     'planet_mass': (180,50,180),
+    'planet_img': ('city1','mountain1','train1'),
 
     # Rocket data
     'acc': 0.0525, # Dont put too much energy in the system
@@ -115,7 +131,13 @@ planet_moon_planet_level = {
     'canon_planet': 1,
     'canon_planet_angle': 280, # Which position on planet (90 = east)
     'canon_max_angle': 60, # How much does it move
-    'canon_velocity': 7.5
+    'canon_velocity': 5.5,
+
+    # Checkpoints
+    'checkpoint_planet': (0,2,1,1),
+    'checkpoint_angle': (270,90,0,180),
+    'checkpoint_segment': ((85,250),(85,250),(45,80),(45,80)),
+    'checkpoint_reward': (1,1,2,2)
 }
 
 
@@ -126,9 +148,10 @@ triple_planet_level = {
     'sim_speedup': 30,
 
     # Planet data
-    'planet_pos': ((225,500), (710,350), (850,500)),
-    'planet_radius': (50,45,42),
+    'planet_pos': ((215,490), (690,330), (830,480)),
+    'planet_radius': (75,60,60),
     'planet_mass': (200,150,120),
+    'planet_img': ('mountain1','train1','city1'),
 
     # Rocket data
     'acc': 0.095,
@@ -137,7 +160,15 @@ triple_planet_level = {
     'canon_planet': 0,
     'canon_planet_angle': 180, # Which position on planet (90 = east)
     'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 8.5
+    'canon_velocity': 6,
+
+    # Checkpoints
+    # Angle = 43.025, 223.025
+    # Distance = 205.183 --> 102.5915 +- 16
+    'checkpoint_planet': (0,1,1,2),
+    'checkpoint_angle': (270,223.025,43.025,43.025),
+    'checkpoint_segment': ((85,250),(100,200),(86.5915,118.5915),(100,200)),
+    'checkpoint_reward': (1,1,2,1)
 }
 
 

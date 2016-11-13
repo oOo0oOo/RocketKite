@@ -12,7 +12,7 @@ from kivy.config import Config
 
 # Screen resolution and
 Config.set('graphics', 'orientation', 'landscape')
-Config.set('graphics', 'maxfps', '30')
+Config.set('graphics', 'maxfps', '40')
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
 
@@ -47,7 +47,7 @@ class GameMenu(ScreenManager):
         self.current = 'game'
 
 
-class SpaceApp(App):
+class RocketKiteApp(App):
     def build(self):
         self.game_menu = GameMenu()
 
@@ -94,4 +94,4 @@ if __name__ == '__main__' :
     stats.print_stats()
     '''
 
-    SpaceApp().run()
+    RocketKiteApp().run()
