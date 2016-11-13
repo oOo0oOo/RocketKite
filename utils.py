@@ -48,6 +48,8 @@ def random_sequential():
         'planet_hl': c[0],
 
         'checkpoint_bg': c[2],
+        'checkpoint_hl': c[6],
+
         'trace_bg': c[0],
         'canon_bg': c[4],
         'main_bg': c[3],

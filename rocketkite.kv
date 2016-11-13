@@ -110,10 +110,12 @@
 <Checkpoint>:
     points: 100,100,200,200
     color_bg: 0.5,0.5,0.5
+    color_hl: 0.5,0.5,0.5
+    active: True
 
     canvas:
         Color:
-            rgb: self.color_bg
+            rgb: self.color_hl if self.active else self.color_bg
         Line:
             points: self.points
             width: 2

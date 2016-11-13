@@ -164,18 +164,15 @@ class GameDisplay(Widget):
         r = math.radians(angle)
         vect = [vel * math.sin(r), vel * math.cos(r)]
 
-        # Create a new kite
+        # Set position and velocity of kite
         p = [pos[0] + vect[0], pos[1] + vect[1]]
-        self.kite = Kite(pos = p, velocity=vect, acceleration = self.params['acc'])
-        self.add_widget(self.kite)
+        self.kite.pos = (pos[0] + vect[0], pos[1] + vect[1])
+        self.kite.velocity = vect
 
-        # End launching sequence, show trace
+        # End launching sequence, show trace & kite
         self.launching = False
         self.trace.opacity = 1.0
-
-        # Set a new theme
-        theme = random_sequential()
-        self.set_color_theme(theme)
+        self.kite.opacity = 1.0
 
 
     def start_launch(self):
@@ -198,6 +195,18 @@ class GameDisplay(Widget):
         self.trace.reset()
         self.time_disp.text = '0'
         self.reward_disp.text = '0'
+
+        # Make all checkpoints active
+        for c in self.checkpoints:
+            c.active = True
+
+        # Remove kite and make new one
+        if self.kite is not None:
+            self.remove_widget(self.kite)
+
+        self.kite = Kite(pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
+        self.add_widget(self.kite)
+        self.kite.opacity = 0.0
 
         # Set random theme
         theme = random_sequential()
@@ -284,6 +293,13 @@ class GameDisplay(Widget):
                                     print 'Got checkpoint', c, angle
                                     self.last_checkpoint = c
 
+                                    # Change active checkpoints (color)
+                                    for i, check in enumerate(self.checkpoints):
+                                        if i == self.last_checkpoint:
+                                            check.active = False
+                                        else:
+                                            check.active = True
+
                                     # give reward
                                     self.reward += self.params['checkpoint_reward'][c]
                                     self.reward_disp.text = str(self.reward)
@@ -341,6 +357,7 @@ class GameDisplay(Widget):
 
         for p in self.checkpoints:
             p.color_bg = theme['checkpoint_bg']
+            p.color_hl = theme['checkpoint_hl']
 
         self.canon.color_bg = theme['canon_bg']
         self.trace.color_bg = theme['trace_bg']

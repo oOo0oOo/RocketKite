@@ -1,4 +1,4 @@
-from kivy.properties import NumericProperty, StringProperty, ListProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty, BooleanProperty
 from kivy.uix.widget import Widget
 from kivy.animation import Animation
 
@@ -129,8 +129,10 @@ class Checkpoint(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
+    active = BooleanProperty(True)
 
     def __init__(self, points, reward, **kwargs):
         super(Checkpoint, self).__init__(**kwargs)
         self.points = points
         self.reward = reward
+        self.active = True
