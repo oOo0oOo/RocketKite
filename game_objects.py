@@ -159,16 +159,14 @@ class FlatButton(Widget):
     btn_img = StringProperty('')
     down = BooleanProperty(False)
 
-    def __init__(self, btn_callback, btn_name = '', **kwargs):
+    def __init__(self, btn_callback, btn_name = '', btn_img = '', **kwargs):
         super(FlatButton, self).__init__(**kwargs)
         self.btn_callback = btn_callback
 
         self.btn = Button(on_press = self._btn_callback,
             on_release = self._btn_callback, **kwargs)
         self.btn.name = btn_name
-
-        if btn_name:
-            self.btn_img = 'img/buttons/{}.png'.format(btn_name)
+        self.btn_img = btn_img
 
         self.btn.background_color = 1,1,1
         self.btn.background_normal = ''

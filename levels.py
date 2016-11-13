@@ -173,9 +173,17 @@ triple_planet_level = {
 
 
 
-
-progression_levels = it.cycle([one_planet_level, two_planet_level,
+progression_cycle = it.cycle([one_planet_level, two_planet_level,
         moon_level, planet_moon_planet_level, triple_planet_level])
+
+
+progression_levels = [
+    ['one_planet', one_planet_level],
+    ['two_planet', two_planet_level],
+    ['planet_moon', moon_level],
+    ['planet_moon_planet', planet_moon_planet_level],
+    ['triple_planet', triple_planet_level]
+]
 
 
 def random_level():

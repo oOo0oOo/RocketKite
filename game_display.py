@@ -8,7 +8,7 @@ from kivy.uix.label import Label
 from kivy.properties import ListProperty
 
 from game_objects import *
-from levels import progression_levels
+from levels import progression_cycle
 from utils import random_diverging, random_sequential
 
 
@@ -16,7 +16,12 @@ class GameDisplay(Widget):
     color_bg = ListProperty([0.5,0.5,0.5])
     def __init__(self, **kwargs):
         super(GameDisplay, self).__init__(**kwargs)
+        self.paused = True
         self.load_level()
+
+
+    def return_to_main(self):
+        self.parent.return_to_main()
 
 
     def load_level(self, params = False):
@@ -24,7 +29,7 @@ class GameDisplay(Widget):
         self.pause_game_clock()
 
         if params == False:
-            params = progression_levels.next()
+            params = progression_cycle.next()
 
         self.params = params
         self.sim_speedup = params['sim_speedup']
@@ -81,13 +86,13 @@ class GameDisplay(Widget):
 
         # Add Buttons
         self.accelerate_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'up', size = (200, 100), pos = (980, 20))
+            btn_name = 'up', btn_img = 'img/buttons/up.png', size = (200, 100), pos = (980, 20))
 
         self.brake_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'down', size = (200, 100), pos = (100, 20))
+            btn_name = 'down', btn_img = 'img/buttons/down.png', size = (200, 100), pos = (100, 20))
 
         self.pause_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'pause', size = (60, 60), pos = (self.size_win[0] - 80, self.size_win[1] - 80))
+            btn_name = 'pause', btn_img = 'img/buttons/pause.png', size = (60, 60), pos = (self.size_win[0] - 80, self.size_win[1] - 80))
 
         self.add_widget(self.accelerate_btn)
         self.add_widget(self.brake_btn)
@@ -102,9 +107,9 @@ class GameDisplay(Widget):
             center = (90, h2))
 
         self.time_img = Icon(img = 'img/icons/time.png',
-            pos = (15, h1-14), size = (28,28))
+            pos = (15, h1-16), size = (32,32))
         self.reward_img = Icon(img = 'img/icons/kite.png',
-            pos = (15, h2-14), size = (28,28))
+            pos = (15, h2-16), size = (32,32))
 
         self.add_widget(self.reward_disp)
         self.add_widget(self.time_disp)
@@ -124,8 +129,6 @@ class GameDisplay(Widget):
 
         # This is really needed!
         self.start_launch()
-
-        self.start_game_clock()
 
 
     def setup_coord_system(self, size_sim):
@@ -149,7 +152,7 @@ class GameDisplay(Widget):
         btn = args[0].name # This is defined to .text is not neede anymore
 
         if btn == 'pause' and btn_down:
-            self.load_level()
+            self.return_to_main()
             return
 
         # Trigger launch
@@ -220,25 +223,25 @@ class GameDisplay(Widget):
 
         # We are starting the launch sequence for a new kite
         self.launching = True
-        self.paused = False
         self.canon.start_launch()
 
 
     def update(self,dt):
-        if not self.launching:
+        # Move kite if not paused
+        if not self.paused and not self.launching:
+
+            # Keep track of episode time
             self.episode_time += dt
             # Show the episode time in realtime if not all checkpoints
             if not all(self.passed_checkpoint):
                 self.time_disp.text = str(int(self.episode_time))
 
-        # Speed up the simulation a bit
-        dt *= self.sim_speedup
-        self.steps += 1
+            # Speed up the simulation a bit
+            dt *= self.sim_speedup
+            self.steps += 1
 
-        # Move kite if not paused
-        remove_kite = False
+            remove_kite = False
 
-        if not self.paused and not self.launching:
             # Get gravity vector for kite
             gravity = self.get_gravity_vector(dt)
 
@@ -393,10 +396,12 @@ class GameDisplay(Widget):
 
 
     def pause_game_clock(self):
+        self.paused = True
         Clock.unschedule(self.update)
 
 
     def start_game_clock(self):
+        self.paused = False
         Clock.schedule_interval(self.update, 1.0/40.0)
 
 
