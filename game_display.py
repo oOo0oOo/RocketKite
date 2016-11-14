@@ -9,7 +9,7 @@ from kivy.properties import ListProperty
 
 from game_objects import *
 from levels import progression_cycle
-from utils import random_diverging, random_sequential
+from utils import random_sequential
 
 
 class GameDisplay(Widget):
@@ -119,7 +119,7 @@ class GameDisplay(Widget):
         self.add_widget(self.reward_img)
 
         # Add trace
-        self.trace = Trace(n_points = 359)
+        self.trace = Trace()
         self.add_widget(self.trace)
 
         # No kite yet
@@ -161,10 +161,8 @@ class GameDisplay(Widget):
         if self.launching and btn_down:
             self.launch_kite()
 
-        # Control kite
-        elif not self.launching:
-            # Process user input
-            self.kite.user_input(btn, btn_down)
+        # Process user input
+        self.kite.user_input(btn, btn_down)
 
 
     def launch_kite(self):
@@ -195,7 +193,6 @@ class GameDisplay(Widget):
         '''
         # Reset episode data
         self.reward = 0
-        self.steps = 0
         self.episode_time = 0
         self.passed_checkpoint = [False for x in self.params['checkpoint_planet']]
         self.time_complete_checkpoints = -1
@@ -240,8 +237,6 @@ class GameDisplay(Widget):
 
             # Speed up the simulation a bit
             dt *= self.sim_speedup
-            self.steps += 1
-
             remove_kite = False
 
             # Get gravity vector for kite
@@ -349,9 +344,8 @@ class GameDisplay(Widget):
                 self.start_launch()
 
             # Update Trace
-            if not self.launching and not self.steps%3:
-                pos = self.kite.pos
-                self.trace.add_point(pos)
+            if not self.launching:
+                self.trace.add_point(self.kite.pos, self.kite.get_angle_rev())
 
 
     def get_gravity_vector(self, dt):
@@ -378,6 +372,16 @@ class GameDisplay(Widget):
         if self.kite is not None:
             self.kite.color_bg = theme['kite_bg']
             self.kite.color_hl = theme['kite_hl']
+            self.kite.color_rocket = theme['kite_rocket']
+
+            # Kite tail
+            self.trace.tail.color_bg = theme['kite_tail']
+            c1, c2 = theme['triangle_bg'], theme['triangle_hl']
+            for i, t in enumerate(self.trace.triangles):
+                t.color_bg = c1
+                t.color_hl = c2
+                c2, c1 = c1, c2 # Swap colors
+
 
         for p in self.planets:
             p.color_bg = theme['planet_bg']
@@ -421,7 +425,7 @@ class GameDisplay(Widget):
 
     def start_game_clock(self):
         self.paused = False
-        Clock.schedule_interval(self.update, 1.0/40.0)
+        Clock.schedule_interval(self.update, 1.0/50.0)
 
 
 

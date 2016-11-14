@@ -17,7 +17,7 @@ from kivy.config import Config
 
 # Screen resolution and
 Config.set('graphics', 'orientation', 'landscape')
-Config.set('graphics', 'maxfps', '40')
+Config.set('graphics', 'maxfps', '60')
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
 
@@ -71,7 +71,7 @@ class MainScreen(Screen):
         # Load highscore and check which levels are available
         self.highscore = self.load_highscore()
         if not self.highscore:
-            self.highscore = {i: (-1,-1) for i in range(len(progression_levels))}
+            self.highscore = {i: (1000,-1) for i in range(len(progression_levels))}
 
         # Make some btns
         self.btns = []
@@ -196,16 +196,16 @@ class RocketKiteApp(App):
 
 if __name__ == '__main__' :
     '''
-    try:
-        import cProfile as profile
-    except:
-        import profile
-    import pstats
-    profile.run('RocketKiteApp().run()', 'out.stats')
-    stats = pstats.Stats('out.stats')
-    stats.strip_dirs()
-    stats.sort_stats('tottime')
-    stats.print_stats()
-    '''
+        try:
+            import cProfile as profile
+        except:
+            import profile
+        import pstats
+        profile.run('RocketKiteApp().run()', 'out.stats')
+        stats = pstats.Stats('out.stats')
+        stats.strip_dirs()
+        stats.sort_stats('tottime')
+        stats.print_stats()
 
+    '''
     RocketKiteApp().run()

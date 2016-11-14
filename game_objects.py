@@ -5,6 +5,7 @@ from kivy.animation import Animation
 
 import math
 import random
+from collections import deque
 
 
 class Planet(Widget):
@@ -60,30 +61,116 @@ class Canon(Widget):
         return self.pos, angle
 
 
+class Tail(Widget):
+    angle = NumericProperty(0)
+    color_bg = ListProperty([0.5,0.5,0.5])
+
+
+class Triangles(Widget):
+    angle = NumericProperty(0)
+    scale = NumericProperty(1.0)
+    color_bg = ListProperty([0.5,0.5,0.5])
+    color_hl = ListProperty([0.3,0.3,0.3])
+
+    def __init__(self, scale = 1.0, **kwargs):
+        super(Triangles, self).__init__(**kwargs)
+        self.scale = scale
+
+
 class Trace(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, n_points = 100, **kwargs):
+    def __init__(self, n_points = 100, line_delay = 5, **kwargs):
         super(Trace, self).__init__(**kwargs)
         self.n_points = n_points
-        self.points = []
+        self.line_delay = line_delay
 
-    def add_point(self, pos):
-        # pos = tuple(pos)
-        self.points.append(pos[0])
-        self.points.append(pos[1])
-        if len(self.points) > self.n_points * 2:
-            self.points = self.points[2:]
+        # This is for us to keep track
+        self.n_tot = self.n_points * self.line_delay
+        self.position = deque()
+        self.angles = deque()
+
+        # Add tail
+        self.tail = Tail()
+        self.add_widget(self.tail)
+
+        # Add triangles
+        triangle_scale = [0.6,0.5,0.5,0.4,0.3]
+        triangle_delay = 22
+        self.n_triangles = len(triangle_scale)
+        self.triangle_inds = [38 + i*triangle_delay for i in range(self.n_triangles)]
+
+        self.triangles = []
+        for s in triangle_scale:
+            self.triangles.append(Triangles(scale = s))
+            self.add_widget(self.triangles[-1])
+
+        self.reset()
+
+
+    def add_point(self, pos, angle):
+        pos = tuple(pos)
+        angle = float(angle)
+
+        # Add position and velocity
+        self.position.appendleft(pos)
+        self.angles.appendleft(angle)
+
+        n_pos = len(self.position)
+        full_queue = n_pos >= self.n_tot
+
+        # First point
+        if n_pos == 1:
+            self.tail.opacity = 1.0
+            self.tail.pos = pos
+            self.tail.angle = angle
+
+        else:
+            # Update tail
+            if full_queue:
+                self.tail.pos = self.position.pop()
+                self.tail.angle = self.angles.pop()
+
+            # Update all triangles
+            if full_queue:
+                available = self.triangle_inds
+            else:
+                available = [j for j in self.triangle_inds if j <= n_pos]
+
+            for i, t_ind in enumerate(available):
+                t_ind -= 2
+                self.triangles[i].pos = self.position[t_ind]
+                self.triangles[i].angle = self.angles[t_ind]
+
+        # We update the line with subsampling
+        if not self.steps%self.line_delay:
+            if full_queue:
+                self.points = self.points[2:] + list(pos)
+            else:
+                self.points = self.points + list(pos)
+
+        self.steps += 1
+
 
     def reset(self):
         self.points = []
+        self.steps = 0
+
+        self.angles.clear()
+        self.position.clear()
+
+        self.tail.opacity = 0.0
+
+        for t in self.triangles:
+            t.pos = (-1000,-1000)
 
 
 class Kite(Widget):
     velocity = ListProperty([10,10])
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
+    color_rocket = ListProperty([0.5,0.5,0.5])
 
     def __init__(self, **kwargs):
         super(Kite, self).__init__(**kwargs)
@@ -97,6 +184,12 @@ class Kite(Widget):
 
     def user_input(self, btn, btn_down):
         self.active_boosters[btn] = btn_down
+
+
+    def get_angle_rev(self):
+        angle = math.atan2(float(self.velocity[1]),self.velocity[0])
+        angle = (270 + math.degrees(angle))%360
+        return angle
 
 
     def get_angle(self):

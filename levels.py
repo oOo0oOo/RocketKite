@@ -37,19 +37,19 @@ one_planet_level = {
     'planet_img': ('city1',),
 
     # Rocket data
-    'acc': 0.068, # dist / s
+    'acc': 0.06, # dist / s
 
     # Canon data
     'canon_planet': 0,
     'canon_planet_angle': 10, # Which position on planet (90 = east)
     'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 8,
+    'canon_velocity': 7.5,
 
     # Checkpoint data
-    'checkpoint_planet': (0,0),
-    'checkpoint_angle': (180,270),
-    'checkpoint_segment': ((140,220),(250,380)),
-    'checkpoint_reward': (1,1)
+    'checkpoint_planet': (0,0,0),
+    'checkpoint_angle': (90,180,270),
+    'checkpoint_segment': ((250,380), (160,255),(250,380)),
+    'checkpoint_reward': (1,1,1)
 
 }
 
@@ -67,18 +67,18 @@ two_planet_level = {
     'planet_img': ('city1','mountain1'),
 
     # Rocket data
-    'acc': 0.1, # dist / s
+    'acc': 0.055, # dist / s
 
     # Canon data
     'canon_planet': 0,
     'canon_planet_angle': 68, # Which position on planet (90 = east)
     'canon_max_angle': 60, # How much does it move
-    'canon_velocity': 7,
+    'canon_velocity': 7.5,
 
     # Checkpoint data
     'checkpoint_planet': (0,0,1),
     'checkpoint_angle': (270,90,90),
-    'checkpoint_segment': ((125,250),(228,262),(125,250)),
+    'checkpoint_segment': ((125,200),(228,262),(80,130)),
     'checkpoint_reward': (1,2,1)
 
 }
@@ -106,10 +106,10 @@ moon_level = {
     'canon_velocity': 6,
 
     # Checkpoints
-    'checkpoint_planet': (0,1),
-    'checkpoint_angle': (270,90),
-    'checkpoint_segment': ((125,250),(50,110)),
-    'checkpoint_reward': (1,1)
+    'checkpoint_planet': (0,1,1),
+    'checkpoint_angle': (270,90,270),
+    'checkpoint_segment': ((125,250),(50,110),(180,230)),
+    'checkpoint_reward': (1,1,1)
 }
 
 planet_moon_planet_level = {
@@ -154,7 +154,7 @@ triple_planet_level = {
     'planet_img': ('mountain1','train1','city1'),
 
     # Rocket data
-    'acc': 0.095,
+    'acc': 0.05,
 
     # Canon data
     'canon_planet': 0,
@@ -167,7 +167,7 @@ triple_planet_level = {
     # Distance = 205.183 --> 102.5915 +- 16
     'checkpoint_planet': (0,1,1,2),
     'checkpoint_angle': (270,223.025,43.025,43.025),
-    'checkpoint_segment': ((85,250),(100,200),(86.5915,118.5915),(100,200)),
+    'checkpoint_segment': ((200,250),(180,220),(86.5915+3,118.5915-3),(70,110)),
     'checkpoint_reward': (1,1,2,1)
 }
 
