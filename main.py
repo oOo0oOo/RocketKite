@@ -17,7 +17,7 @@ from kivy.config import Config
 
 # Screen resolution and
 Config.set('graphics', 'orientation', 'landscape')
-Config.set('graphics', 'maxfps', '60')
+# Config.set('graphics', 'maxfps', '30')
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
 
@@ -148,8 +148,6 @@ class MainScreen(Screen):
             print 'Could not save highscores:', path
 
 
-
-
 class GameMenu(ScreenManager):
     def __init__(self):
         super(GameMenu, self).__init__(transition = SlideTransition(duration = 1))
@@ -169,26 +167,30 @@ class RocketKiteApp(App):
         Window.bind(on_keyboard=self.hook_keyboard)
         return self.game_menu
 
-
     # Disable kivy menu
     def open_settings(self):
         pass
 
-
     def hook_keyboard(self,window,key,*largs):
         # back button behaviour
         if key == 27:
-            return False
+            if self.game_menu.current == 'main':
+                return False
+            else:
+                return True
 
         # menu key behaviour (nothing)
         elif key in (282, 319):
             return True
 
     def on_pause(self):
+        self.game_menu.get_screen('game').game.pause_game_clock()
         return True
 
     def on_resume(self):
-        pass
+        if self.game_menu.current == 'game':
+            self.game_menu.get_screen('game').game.start_game_clock()
+        return True
 
     def on_stop(self):
         print('Stopping App')

@@ -157,6 +157,9 @@ class GameDisplay(Widget):
             self.return_to_main()
             return
 
+        if self.paused and btn_down and btn != 'pause':
+            self.start_game_clock()
+
         # Trigger launch
         if self.launching and btn_down:
             self.launch_kite()
@@ -425,7 +428,7 @@ class GameDisplay(Widget):
 
     def start_game_clock(self):
         self.paused = False
-        Clock.schedule_interval(self.update, 1.0/50.0)
+        Clock.schedule_interval(self.update, 1.0/40)
 
 
 
