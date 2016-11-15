@@ -23,18 +23,18 @@ class CleanPopup(Popup):
 
 
 class IntroPopup(CleanPopup):
-    def __init__(self, **kwargs):
+    def __init__(self, scale = 1.0, **kwargs):
         super(IntroPopup, self).__init__(**kwargs)
 
         data = {'title': 'FLY YOUR ROCKET KITE', 'text': 'pass all [b]checkpoints[/b]\nactivate [b]next level[/b]\n\ncollect [b]points[/b]\nreceive [b]MEDALS[/b]\n'}
 
-        main_layout = BoxLayout(orientation = 'vertical', padding = 15, spacing = 25)
+        main_layout = BoxLayout(orientation = 'vertical', padding = 15 * scale, spacing = 25 * scale)
 
 
-        main_layout.add_widget(Label(text = data['title'], font_size = 42, color = (0.1,0.1,0.1,1.0),
+        main_layout.add_widget(Label(text = data['title'], font_size = 42 * scale, color = (0.1,0.1,0.1,1.0),
             h_align = 'middle', size_hint = (0.8,0.15), pos_hint = {'center_x': 0.5}))
         main_layout.add_widget(Label(text = data['text'], markup = True, color = (0.1,0.1,0.1,1.0),
-            h_align = 'middle', size_hint = (0.8,0.6), font_size = 36, pos_hint = {'center_x': 0.5}))
+            h_align = 'middle', size_hint = (0.8,0.6), font_size = 36 * scale, pos_hint = {'center_x': 0.5}))
         # main_layout.add_widget(cancel_btn)
 
         self.content = main_layout
@@ -45,11 +45,11 @@ class IntroPopup(CleanPopup):
 
 
 class PausePopup(CleanPopup):
-    def __init__(self, highscore, stars = [1,2,3], new_time = False, new_points = False, new_level = False, **kwargs):
+    def __init__(self, highscore, stars = [1,2,3], new_time = False, new_points = False, new_level = False, scale = 1.0, **kwargs):
         super(PausePopup, self).__init__(**kwargs)
 
         if new_level:
-            title = 'NEW LEVEL'
+            title = 'NEW LEVEL!'
         elif new_time or new_points:
             title = 'NEW HIGHSCORE!'
         else:
@@ -77,22 +77,22 @@ class PausePopup(CleanPopup):
         if new_time:
             hs[0] = '[color=#ADADAD]CHECKPOINTS\n{}s[/color]'.format(hs[0])
         else:
-            hs[0] = 'Checkpoints\n{}s'.format(hs[0])
+            hs[0] = 'CHECKPOINTS\n{}s'.format(hs[0])
 
         if new_points:
-            hs[1] = '[color=#ADADAD]KITES\n{}   {}[/color]'.format(hs[1], disp_stars)
+            hs[1] = '[color=#ADADAD]KITES {}\n{}[/color]'.format(disp_stars, hs[1])
         else:
-            hs[1] = 'Kites\n{}    {}'.format(hs[1], disp_stars)
+            hs[1] = 'KITES {}\n {}'.format(disp_stars, hs[1])
 
-        text = '{}\n\n{}'.format(hs[1], hs[0])
+        text = '{}\n{}'.format(hs[1], hs[0])
 
-        if new_level:
-            text += '\n[size=25]Check out the new level[/size]'
+        # if new_level:
+        #     text += '\n[size=12]Check out the new level[/size]'
 
         data = {'title': title, 'text': text}
 
-        main_layout = BoxLayout(orientation = 'vertical', padding = 15, spacing = 25)
-        btn_layout = BoxLayout(orientation = 'horizontal', padding = 10, spacing = 20)
+        main_layout = BoxLayout(orientation = 'vertical', padding = 5 * scale, spacing = 75 * scale)
+        btn_layout = BoxLayout(orientation = 'horizontal', padding = 10 * scale, spacing = 20* scale)
 
         menu_btn = Button(text = 'MENU', on_press = self.return_to_menu,
             size_hint = (0.6,0.6), font_size = 25)
@@ -102,10 +102,10 @@ class PausePopup(CleanPopup):
         btn_layout.add_widget(menu_btn)
         btn_layout.add_widget(restart_btn)
 
-        main_layout.add_widget(Label(text = data['title'], font_size = 42, color = (0.1,0.1,0.1,1.0),
-            halign = 'center', valign='middle', size_hint = (0.8,0.1), pos_hint = {'center_x': 0.5}))
+        main_layout.add_widget(Label(text = data['title'], font_size = 42* scale, color = (0.1,0.1,0.1,1.0),
+            halign = 'center', size_hint = (0.8,0.3), pos_hint = {'center_x': 0.5}))
         main_layout.add_widget(Label(text = data['text'], markup = True, color = (0.1,0.1,0.1,1.0),
-            halign = 'center', valign='middle', size_hint = (0.8,0.9), font_size = 36, pos_hint = {'center_x': 0.5}))
+            halign = 'center', size_hint = (0.8,0.3), font_size = 36* scale, pos_hint = {'center_x': 0.5, 'center_y': 0.5}))
 
         main_layout.add_widget(btn_layout)
         self.content = main_layout

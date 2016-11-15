@@ -150,7 +150,7 @@ class GameDisplay(Widget):
 
         # Display the Introduction popup if its the first level
         if self.params['name'] == 'one_planet':
-            self.intro_popup = IntroPopup(size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed)
+            self.intro_popup = IntroPopup(size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
             self.intro_popup.open()
 
 
@@ -191,7 +191,7 @@ class GameDisplay(Widget):
             new_time, new_points, new_level = self.check_highscore()
             self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
                 new_time = new_time, new_points = new_points, new_level = new_level,
-                size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed)
+                size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
             self.pause_popup.open()
             self.pause_game_clock()
             return

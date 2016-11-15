@@ -33,9 +33,16 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+
 from game_display import GameDisplay
 from game_objects import FlatButton
 from levels import progression_levels
+from utils import standard_color_theme
+
+# Register fonts
+from kivy.core.text import LabelBase
+LabelBase.register(name = 'fugaz',
+                fn_regular = 'fonts/FugazOne-Regular.ttf')
 
 
 class GameScreen(Screen):
@@ -63,11 +70,15 @@ class GameScreen(Screen):
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
-        Window.clearcolor = (0.8,0.8,0.8,1.0)
         main_l = BoxLayout(orientation = 'vertical')
         btn_l = GridLayout(cols = 5, size_hint = (1,0.7),
                 row_default_height = 250, row_force_default = True,
                 spacing = 20, padding = 20)
+
+        colors = standard_color_theme()
+        self.colors = [list(c) + [1] for c in colors]
+
+        Window.clearcolor = self.colors[3]
 
         # Load highscore and check which levels are available
         self.highscore = self.load_highscore()
@@ -79,17 +90,19 @@ class MainScreen(Screen):
         for i, (name, __) in enumerate(progression_levels):
             btn_img = 'img/maps/{}.png'.format(name)
 
-            btn = Button(on_press = self.start_level, font_size = 60, font_color = (0.1,0.1,0.1,0.5))
+            btn = Button(on_press = self.start_level, font_size = 60, font_color = self.colors[8])
             btn.background_normal = btn_img
             btn.background_down = ''
             btn.name = i
             btn_l.add_widget(btn)
             self.btns.append(btn)
 
-        title = Label(text = 'ROCKET KITE', font_size = 75, size_hint = (1,0.3),
-            color = (0.2,0.2,0.2, 1.0))
+        s = float(Window.size[1]) / 720
+        title = Label(text = 'ROCKET KITE', font_size = 85 * s, size_hint = (1,0.3),
+            color = self.colors[8])
         main_l.add_widget(title)
         main_l.add_widget(btn_l)
+
 
         self.add_widget(main_l)
 
@@ -106,9 +119,9 @@ class MainScreen(Screen):
     def update_btns(self):
         for i, (a, btn) in enumerate(zip(self.get_available_maps(), self.btns)):
             if a:
-                btn.background_color = 0.2,0.2,0.2,1.0
+                btn.background_color = self.colors[7]
             else:
-                btn.background_color = 0.6,0.6,0.6,1.0
+                btn.background_color = self.colors[5]
 
             # Update the stars
             if self.highscore:
@@ -120,7 +133,7 @@ class MainScreen(Screen):
                     if n_kites < s:
                         break
                     n_stars += 1
-                btn.text = '\n\n\n' + ' '.join(['*'] * n_stars)
+                btn.text = '\n\n\n\n' + ' '.join(['*'] * n_stars)
 
 
     def start_level(self, btn):

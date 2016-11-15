@@ -44,6 +44,10 @@ def random_sequential():
     return theme
 
 
+def standard_color_theme():
+    return sequential_themes[0]
+
+
 if __name__ == '__main__':
     # theme = random_diverging()
     theme = random_sequential()
