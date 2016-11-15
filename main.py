@@ -23,8 +23,8 @@ Config.set('graphics', 'orientation', 'landscape')
 
 if True:
     Config.set('graphics', 'resizable', 1)
-    Config.set('graphics', 'width', '1280')
-    Config.set('graphics', 'height', '720')
+    Config.set('graphics', 'width', '1920') #1280x720  1920x1080
+    Config.set('graphics', 'height', '1080')
 
 from kivy.app import App
 from kivy.core.window import Window
@@ -51,7 +51,8 @@ class GameScreen(Screen):
         self.game.update(dt)
 
     def on_pre_enter(self, *args):
-        self.game.start_game_clock()
+        pass
+        # self.game.start_game_clock()
 
     def return_to_main(self, new_highscore):
         self.game.pause_game_clock()
@@ -71,14 +72,14 @@ class MainScreen(Screen):
         # Load highscore and check which levels are available
         self.highscore = self.load_highscore()
         if not self.highscore:
-            self.highscore = {i: (1000,-1) for i in range(len(progression_levels))}
+            self.highscore = {i: (-1,-1) for i in range(len(progression_levels))}
 
         # Make some btns
         self.btns = []
         for i, (name, __) in enumerate(progression_levels):
             btn_img = 'img/maps/{}.png'.format(name)
 
-            btn = Button(on_press = self.start_level)
+            btn = Button(on_press = self.start_level, font_size = 60, font_color = (0.1,0.1,0.1,0.5))
             btn.background_normal = btn_img
             btn.background_down = ''
             btn.name = i
@@ -103,11 +104,23 @@ class MainScreen(Screen):
 
 
     def update_btns(self):
-        for a, btn in zip(self.get_available_maps(), self.btns):
+        for i, (a, btn) in enumerate(zip(self.get_available_maps(), self.btns)):
             if a:
                 btn.background_color = 0.2,0.2,0.2,1.0
             else:
                 btn.background_color = 0.6,0.6,0.6,1.0
+
+            # Update the stars
+            if self.highscore:
+                # Check how many stars
+                n_stars = 0
+                stars = progression_levels[i][1]['stars']
+                n_kites = self.highscore[i][1]
+                for s in stars:
+                    if n_kites < s:
+                        break
+                    n_stars += 1
+                btn.text = '\n\n\n' + ' '.join(['*'] * n_stars)
 
 
     def start_level(self, btn):
@@ -190,7 +203,6 @@ class RocketKiteApp(App):
     def on_resume(self):
         if self.game_menu.current == 'game':
             self.game_menu.get_screen('game').game.start_game_clock()
-        return True
 
     def on_stop(self):
         print('Stopping App')

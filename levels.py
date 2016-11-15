@@ -26,6 +26,7 @@ test_level = {
 
 one_planet_level = {
     # General parameters
+    'name': 'one_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -49,13 +50,16 @@ one_planet_level = {
     'checkpoint_planet': (0,0,0),
     'checkpoint_angle': (90,180,270),
     'checkpoint_segment': ((250,380), (160,255),(250,380)),
-    'checkpoint_reward': (1,1,1)
+    'checkpoint_reward': (1,1,1),
 
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (5, 15, 30)
 }
 
 
 two_planet_level = {
     # General parameters
+    'name': 'two_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -79,13 +83,16 @@ two_planet_level = {
     'checkpoint_planet': (0,0,1),
     'checkpoint_angle': (270,90,90),
     'checkpoint_segment': ((125,200),(228,262),(80,130)),
-    'checkpoint_reward': (1,2,1)
+    'checkpoint_reward': (1,2,1),
 
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (5, 15, 30)
 }
 
 
-moon_level = {
+planet_moon_level = {
     # General parameters
+    'name': 'planet_moon',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -109,11 +116,15 @@ moon_level = {
     'checkpoint_planet': (0,1,1),
     'checkpoint_angle': (270,90,270),
     'checkpoint_segment': ((125,250),(50,110),(180,230)),
-    'checkpoint_reward': (1,1,1)
+    'checkpoint_reward': (1,1,1),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (5, 10, 20)
 }
 
 planet_moon_planet_level = {
     # General parameters
+    'name': 'planet_moon_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -137,12 +148,16 @@ planet_moon_planet_level = {
     'checkpoint_planet': (0,2,1,1),
     'checkpoint_angle': (270,90,0,180),
     'checkpoint_segment': ((85,250),(85,250),(45,80),(45,80)),
-    'checkpoint_reward': (1,1,2,2)
+    'checkpoint_reward': (1,1,2,2),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (5, 12, 25)
 }
 
 
 triple_planet_level = {
     # General parameters
+    'name': 'triple_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -168,19 +183,22 @@ triple_planet_level = {
     'checkpoint_planet': (0,1,1,2),
     'checkpoint_angle': (270,223.025,43.025,43.025),
     'checkpoint_segment': ((200,250),(180,220),(86.5915+3,118.5915-3),(70,110)),
-    'checkpoint_reward': (1,1,2,1)
+    'checkpoint_reward': (1,1,2,1),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (5, 12, 25)
 }
 
 
 
 progression_cycle = it.cycle([one_planet_level, two_planet_level,
-        moon_level, planet_moon_planet_level, triple_planet_level])
+        planet_moon_level, planet_moon_planet_level, triple_planet_level])
 
 
 progression_levels = [
     ['one_planet', one_planet_level],
-    ['planet_moon', moon_level],
     ['two_planet', two_planet_level],
+    ['planet_moon', planet_moon_level],
     ['planet_moon_planet', planet_moon_planet_level],
     ['triple_planet', triple_planet_level]
 ]

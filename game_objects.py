@@ -81,7 +81,7 @@ class Trace(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, n_points = 100, line_delay = 5, **kwargs):
+    def __init__(self, n_points = 50, line_delay = 5, **kwargs):
         super(Trace, self).__init__(**kwargs)
         self.n_points = n_points
         self.line_delay = line_delay
@@ -96,7 +96,7 @@ class Trace(Widget):
         self.add_widget(self.tail)
 
         # Add triangles
-        triangle_scale = [0.6,0.5,0.5,0.4,0.3]
+        triangle_scale = [0.65,0.52,0.5,0.4]
         triangle_delay = 22
         self.n_triangles = len(triangle_scale)
         self.triangle_inds = [38 + i*triangle_delay for i in range(self.n_triangles)]
