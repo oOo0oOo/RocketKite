@@ -10,6 +10,7 @@ from kivy.properties import ListProperty
 from game_objects import *
 from levels import progression_cycle
 from utils import random_sequential
+from popups import IntroPopup, PausePopup
 
 
 class GameDisplay(Widget):
@@ -18,7 +19,7 @@ class GameDisplay(Widget):
         super(GameDisplay, self).__init__(**kwargs)
         self.paused = True
         self.current_highscore = [-1,-1]
-        self.load_level()
+        # self.load_level()
 
 
     def return_to_main(self):
@@ -27,6 +28,7 @@ class GameDisplay(Widget):
 
     def load_level(self, params = False, current_highscore = (-1,-1)):
         self.current_highscore = list(current_highscore)
+        self.initial_highscore = current_highscore
         self.clear_widgets()
         self.pause_game_clock()
 
@@ -132,6 +134,11 @@ class GameDisplay(Widget):
         # This is really needed!
         self.start_launch()
 
+        # Display the Introduction popup if its the first level
+        if self.params['name'] == 'one_planet':
+            self.intro_popup = IntroPopup(size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed)
+            self.intro_popup.open()
+
 
     def setup_coord_system(self, size_sim):
         # The simulation box is maximized and centered on the screen
@@ -149,12 +156,28 @@ class GameDisplay(Widget):
         self.scale_factor = scale
 
 
+    def popup_dismissed(self, popup):
+        if type(popup) == PausePopup:
+            if popup.do_return:
+                self.return_to_main()
+            elif popup.do_restart and not self.launching:
+                print 'restart'
+                self.start_launch()
+        # self.start_game_clock()
+
+
     def btn_press(self, *args, **kwargs):
         btn_down = args[0].state == 'down'
         btn = args[0].name # This is defined to .text is not neede anymore
 
         if btn == 'pause' and btn_down:
-            self.return_to_main()
+            self.update_highscore()
+            new_time, new_points, new_level = self.check_highscore()
+            self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
+                new_time = new_time, new_points = new_points, new_level = new_level,
+                size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed)
+            self.pause_popup.open()
+            self.pause_game_clock()
             return
 
         if self.paused and btn_down and btn != 'pause':
@@ -229,7 +252,7 @@ class GameDisplay(Widget):
 
 
     def update(self,dt):
-        # Move kite if not paused
+        # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
 
             # Keep track of episode time
@@ -242,32 +265,22 @@ class GameDisplay(Widget):
             dt *= self.sim_speedup
             remove_kite = False
 
-            # Get gravity vector for kite
-            gravity = self.get_gravity_vector(dt)
-
-            # Process user inputs
-            self.kite.update(dt)
-
-            # Update velocity
-            self.kite.velocity[0] += gravity[0]
-            self.kite.velocity[1] += gravity[1]
-
-            # Update Position
-            self.kite.pos[0] += dt * self.kite.velocity[0]
-            self.kite.pos[1] += dt * self.kite.velocity[1]
-
             # Collision: Leave screen
-            if not 0 < self.kite.pos[0] < self.size_win[0]:
+            p = tuple(self.kite.pos)
+            if not 0 < p[0] < self.size_win[0]:
                 remove_kite = True
 
-            elif not 0 < self.kite.pos[1] < self.size_win[1]:
+            elif not 0 < p[1] < self.size_win[1]:
                 remove_kite = True
 
             else:
+                pm = self.params['planet_mass']
+                G = self.params['gravity_constant']
+
                 # Collision detection: planets
-                p = tuple(self.kite.pos)
                 planet_vect = []
                 planet_dist = []
+                tot_force = [0,0]
                 for j, planet in enumerate(self.planets):
                     vect = [planet.pos[0] - p[0], planet.pos[1] - p[1]]
                     dist = math.hypot(*vect)
@@ -276,15 +289,30 @@ class GameDisplay(Widget):
                     planet_vect.append(vect)
                     planet_dist.append(self.scale_dist(dist))
 
+                    # The gravity bit
+                    gravity = G * pm[j] / (dist**2)
+                    tot_force[0] += dt * vect[0] * gravity / dist
+                    tot_force[1] += dt * vect[1] * gravity / dist
+
                     if dist < planet.radius:
                         remove_kite = True
                         break
 
                 if not remove_kite:
+                    # Move the kite
+                    # Process user inputs
+                    self.kite.update(dt)
+
+                    # Update velocity
+                    k = self.kite
+                    vel = (k.velocity[0] + tot_force[0], k.velocity[1] + tot_force[1])
+                    k.velocity = vel
+
+                    # Update Position
+                    k.pos = (p[0] + dt * vel[0], p[1] + dt * vel[1])
+
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
-                    pos = self.kite.pos
-
                     for c, cp in enumerate(self.checkpoints):
                         # Have to take other checkpoint before retaking this one
                         # Also prevents multiple rewards during passage of the checkpoint
@@ -299,6 +327,7 @@ class GameDisplay(Widget):
                                 angle = (270-angle)%360
 
                                 if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
+                                    # Currently on checkpoint
                                     self.last_checkpoint = c
 
                                     # Change active checkpoints (color)
@@ -318,32 +347,16 @@ class GameDisplay(Widget):
                                     if all(self.passed_checkpoint) and not not_all:
                                         self.time_disp.text = str(round(self.episode_time, 1))
                                         self.time_complete_checkpoints = self.episode_time
-                                        print 'Completed checkpoints', round(self.episode_time,1)
+
+                                        # print 'Completed checkpoints', round(self.episode_time,1)
                                     break
+
 
             # Remove kite if collided
             if remove_kite:
                 self.remove_widget(self.kite)
                 self.kite = None
-
-                # Check if new highscore (not in first round)
-                faster = False
-                points = False
-                if self.time_complete_checkpoints != -1:
-                    if self.current_highscore[0] == -1:
-                        faster = True
-                        self.current_highscore[0] = self.time_complete_checkpoints
-
-                    elif self.time_complete_checkpoints < self.current_highscore[0]:
-                        faster = True
-                        self.current_highscore[0] = self.time_complete_checkpoints
-
-                if self.reward != -1 and self.reward > self.current_highscore[1]:
-                    points = True
-                    self.current_highscore[1] = self.reward
-
-                if faster or points:
-                    print 'New Highscore', faster, points, self.current_highscore
+                self.update_highscore()
                 self.start_launch()
 
             # Update Trace
@@ -351,24 +364,33 @@ class GameDisplay(Widget):
                 self.trace.add_point(self.kite.pos, self.kite.get_angle_rev())
 
 
-    def get_gravity_vector(self, dt):
+    def check_highscore(self):
         '''
-            Calculates vector of gravity for kite
+            Compares current against initial highscore
+            initial high score is only updated when you crash
         '''
-        vectors = []
-        pm = self.params['planet_mass']
-        G = self.params['gravity_constant']
+        if self.current_highscore == self.initial_highscore:
+            return False, False, False
 
-        pos = self.kite.pos
-        tot_force = [0,0]
-        for i, p_pos in enumerate(self.planet_pos):
-            vect = (p_pos[0]-pos[0], p_pos[1] - pos[1])
-            dist = math.hypot(vect[0], vect[1]) * self.scale_factor
-            gravity = G * pm[i] / (dist**2)
-            tot_force[0] += dt * vect[0] * gravity / dist
-            tot_force[1] += dt * vect[1] * gravity / dist
+        t,p = False, False
+        if 0 < self.current_highscore[0] < self.initial_highscore[0]:
+            t = True
+        if 0 < self.current_highscore[1] > self.initial_highscore[1]:
+            p = True
+        l = self.initial_highscore[0] == -1 and self.current_highscore[0] > 0
+        return t,p,l
 
-        return tot_force
+
+    def update_highscore(self):
+        if self.time_complete_checkpoints != -1:
+            if self.current_highscore[0] == -1:
+                self.current_highscore[0] = self.time_complete_checkpoints
+
+            elif self.time_complete_checkpoints < self.current_highscore[0]:
+                self.current_highscore[0] = self.time_complete_checkpoints
+
+        if self.reward > 0 and self.reward > self.current_highscore[1]:
+            self.current_highscore[1] = self.reward
 
 
     def set_color_theme(self, theme):
@@ -427,6 +449,7 @@ class GameDisplay(Widget):
 
 
     def start_game_clock(self):
+        self.pause_game_clock() # For good measure?
         self.paused = False
         Clock.schedule_interval(self.update, 1.0/40)
 
