@@ -24,13 +24,15 @@ class Planet(Widget):
 
 
 class Canon(Widget):
+    scale = NumericProperty(1.0)
     angle = NumericProperty(0)
     color_bg = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, angle = 0, max_angle = 10, **kwargs):
+    def __init__(self, angle = 0, max_angle = 10, scale = 1.0, **kwargs):
         super(Canon, self).__init__(**kwargs)
         self.angle = angle
         self.max_angle = max_angle
+        self.scale = scale
         self.center_angle = float(angle)
 
         # The aim movement of the canon
@@ -64,6 +66,7 @@ class Canon(Widget):
 class Tail(Widget):
     angle = NumericProperty(0)
     color_bg = ListProperty([0.5,0.5,0.5])
+    scale = NumericProperty(1.0)
 
 
 class Triangles(Widget):
@@ -80,11 +83,13 @@ class Triangles(Widget):
 class Trace(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])
+    scale = NumericProperty(1.0)
 
-    def __init__(self, n_points = 50, line_delay = 5, **kwargs):
+    def __init__(self, n_points = 50, line_delay = 5, scale = 1.0, **kwargs):
         super(Trace, self).__init__(**kwargs)
         self.n_points = n_points
         self.line_delay = line_delay
+        self.scale = scale
 
         # This is for us to keep track
         self.n_tot = self.n_points * self.line_delay
@@ -93,6 +98,7 @@ class Trace(Widget):
 
         # Add tail
         self.tail = Tail()
+        self.tail.scale = scale
         self.add_widget(self.tail)
 
         # Add triangles
@@ -103,7 +109,7 @@ class Trace(Widget):
 
         self.triangles = []
         for s in triangle_scale:
-            self.triangles.append(Triangles(scale = s))
+            self.triangles.append(Triangles(scale = self.scale * s))
             self.add_widget(self.triangles[-1])
 
         self.reset()
@@ -171,12 +177,14 @@ class Kite(Widget):
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
     color_rocket = ListProperty([0.5,0.5,0.5])
+    scale = NumericProperty(1.0)
 
-    def __init__(self, **kwargs):
+    def __init__(self, scale = 1.0, **kwargs):
         super(Kite, self).__init__(**kwargs)
         self.velocity = kwargs['velocity']
         self.pos = kwargs['pos']
         self.acc = kwargs['acceleration']
+        self.scale = scale
 
         self.active_boosters = {i:False for i in ['up', 'down']}
         self.dir_angles = {'up': 0, 'down': 180}
@@ -229,11 +237,13 @@ class Checkpoint(Widget):
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
     active = BooleanProperty(True)
+    scale = NumericProperty(1.0)
 
-    def __init__(self, points, reward, **kwargs):
+    def __init__(self, points, reward, scale = 1.0, **kwargs):
         super(Checkpoint, self).__init__(**kwargs)
         self.points = points
         self.reward = reward
+        self.scale = scale
         self.active = True
 
 

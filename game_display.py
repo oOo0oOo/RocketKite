@@ -43,27 +43,32 @@ class GameDisplay(Widget):
 
         # Create Planets
         self.planets = []
-        self.planet_pos = []
+        self.planet_screen_pos = []
+        self.planet_data = zip(self.params['planet_pos'],self.params['planet_radius'],self.params['planet_mass'])
+
         for i, pos in enumerate(params['planet_pos']):
-            tp = self.transform_pos(pos)
-            self.planet_pos.append(tp)
-            rad = self.scale_dist(params['planet_radius'][i])
+            pos = self.real_to_screen(pos)
+            self.planet_screen_pos.append(pos)
+
+            rad = self.real_to_screen_scalar(params['planet_radius'][i])
             img = params['planet_img'][i]
-            self.planets.append(Planet(radius = rad, pos = tp, img = img))
+            self.planets.append(Planet(radius = rad, pos = pos, img = img))
             self.add_widget(self.planets[-1])
 
             # Calculate the canon pos
             if i == params['canon_planet']:
                 angle = params['canon_planet_angle']
                 rad_angle = math.radians(angle)
-                x = tp[0] + math.sin(rad_angle) * rad
-                y = tp[1] + math.cos(rad_angle) * rad
+                x = pos[0] + math.sin(rad_angle) * rad
+                y = pos[1] + math.cos(rad_angle) * rad
                 self.canon_pos = (x, y)
 
-        self.canon = Canon(pos = self.canon_pos, angle = angle,
-            max_angle = params['canon_max_angle'])
-        self.add_widget(self.canon)
+        self.canon = Canon(pos = self.canon_pos,
+            angle = angle,
+            max_angle = params['canon_max_angle'],
+            scale = self.scale_factor)
 
+        self.add_widget(self.canon)
 
         # Setup the checkpoints
         self.checkpoints = []
@@ -72,48 +77,57 @@ class GameDisplay(Widget):
             # find the start and endpoint of the checkpoint
             angle = math.radians(params['checkpoint_angle'][i])
             vect = [math.sin(angle), math.cos(angle)]
-            p_pos = params['planet_pos'][planet]
+            p_pos = self.planet_data[planet][0]
 
             points = []
             seg = params['checkpoint_segment'][i]
-            seg = [self.scale_dist(s) for s in seg]
 
             for d in seg:
                 p = [p_pos[ii] + d * vect[ii] for ii in range(2)]
-                p = self.transform_pos(p)
-                points += p
+                points += self.real_to_screen(p)
 
-            cp = Checkpoint(points,params['checkpoint_reward'][i])
+            cp = Checkpoint(points,params['checkpoint_reward'][i], scale = self.scale_factor)
 
             self.add_widget(cp)
             self.checkpoints.append(cp)
 
         # Add Buttons
+        border = self.size_win[0] / 60
+        btn_size = (self.size_win[1]/3.6, self.size_win[1]/7.2)
+        btn_size2 = (self.size_win[0]/20, self.size_win[0]/20)
+
+        up_pos = (self.size_win[0] - border*4 - btn_size[0], border)
+        down_pos = (border*4, border)
+
         self.accelerate_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'up', btn_img = 'img/buttons/up.png', size = (200, 100), pos = (980, 20))
+            btn_name = 'up', btn_img = 'img/buttons/up.png', size = btn_size, pos = up_pos)
 
         self.brake_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'down', btn_img = 'img/buttons/down.png', size = (200, 100), pos = (100, 20))
+            btn_name = 'down', btn_img = 'img/buttons/down.png', size = btn_size, pos = down_pos)
 
         self.pause_btn = FlatButton(btn_callback = self.btn_press,
-            btn_name = 'pause', btn_img = 'img/buttons/pause.png', size = (60, 60), pos = (self.size_win[0] - 80, self.size_win[1] - 80))
+            btn_name = 'pause', btn_img = 'img/buttons/pause.png', size = btn_size2,
+            pos = (self.size_win[0]-btn_size2[0]-border, self.size_win[1]-btn_size2[0]-border))
 
         self.add_widget(self.accelerate_btn)
         self.add_widget(self.brake_btn)
         self.add_widget(self.pause_btn)
 
         # Reward and time display
-        h1 = self.size_win[1] - 28
-        h2 = self.size_win[1] - 75
-        self.time_disp = Label(text = '546.3', font_size=32,
-            center = (90, h1))
-        self.reward_disp = Label(text = '101', font_size=32,
-            center = (90, h2))
+        icon_size = self.size_win[1] / 22.5
+        h1 = self.size_win[1] - icon_size
+        h2 = self.size_win[1] - 2.5 * icon_size
+        pos_x = self.size_win[0] / 14
+
+        self.time_disp = Label(text = '546.3', font_size=32 * self.scale_factor,
+            center = (pos_x, h1))
+        self.reward_disp = Label(text = '101', font_size=32 * self.scale_factor,
+            center = (pos_x, h2))
 
         self.time_img = Icon(img = 'img/icons/time.png',
-            pos = (15, h1-16), size = (32,32))
+            pos = (15, h1-icon_size/2), size = (icon_size,icon_size))
         self.reward_img = Icon(img = 'img/icons/kite.png',
-            pos = (15, h2-16), size = (32,32))
+            pos = (15, h2-icon_size/2), size = (icon_size,icon_size))
 
         self.add_widget(self.reward_disp)
         self.add_widget(self.time_disp)
@@ -121,7 +135,7 @@ class GameDisplay(Widget):
         self.add_widget(self.reward_img)
 
         # Add trace
-        self.trace = Trace()
+        self.trace = Trace(scale = self.scale_factor)
         self.add_widget(self.trace)
 
         # No kite yet
@@ -147,6 +161,8 @@ class GameDisplay(Widget):
         # Scaling factor
         scale = [float(self.size_win[i]) / size_sim[i] for i in range(2)]
         scale = round(min(scale),4)
+
+        print scale
 
         # Transform
         scaled_sim = [int(s*scale) for s in size_sim]
@@ -194,14 +210,16 @@ class GameDisplay(Widget):
     def launch_kite(self):
         pos, angle = self.canon.launch()
 
+        pos = self.screen_to_real(pos)
+
         # Initial velocity in scaled coordinates
-        vel = self.params['canon_velocity'] * self.scale_factor
+        vel = self.params['canon_velocity'] #/ self.scale_factor
         r = math.radians(angle)
         vect = [vel * math.sin(r), vel * math.cos(r)]
 
         # Set position and velocity of kite
         p = [pos[0] + vect[0], pos[1] + vect[1]]
-        self.kite.pos = (pos[0] + vect[0], pos[1] + vect[1])
+        self.kite.pos = self.real_to_screen((pos[0] + vect[0], pos[1] + vect[1]))
         self.kite.velocity = vect
 
         # End launching sequence, show trace & kite
@@ -238,7 +256,7 @@ class GameDisplay(Widget):
         if self.kite is not None:
             self.remove_widget(self.kite)
 
-        self.kite = Kite(pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
+        self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
         self.add_widget(self.kite)
         self.kite.opacity = 0.0
 
@@ -265,36 +283,37 @@ class GameDisplay(Widget):
             dt *= self.sim_speedup
             remove_kite = False
 
+
             # Collision: Leave screen
-            p = tuple(self.kite.pos)
-            if not 0 < p[0] < self.size_win[0]:
+            p_screen = tuple(self.kite.pos)
+            p = self.screen_to_real(p_screen)
+
+            if not 0 < p_screen[0] < self.size_win[0]:
                 remove_kite = True
 
-            elif not 0 < p[1] < self.size_win[1]:
+            elif not 0 < p_screen[1] < self.size_win[1]:
                 remove_kite = True
 
             else:
-                pm = self.params['planet_mass']
                 G = self.params['gravity_constant']
 
                 # Collision detection: planets
                 planet_vect = []
                 planet_dist = []
                 tot_force = [0,0]
-                for j, planet in enumerate(self.planets):
-                    vect = [planet.pos[0] - p[0], planet.pos[1] - p[1]]
+                for p_pos, radius, mass in self.planet_data:
+                    vect = [p_pos[0] - p[0], p_pos[1] - p[1]]
                     dist = math.hypot(*vect)
 
-                    # No need to scale vector bc its only needed for angle calc
                     planet_vect.append(vect)
-                    planet_dist.append(self.scale_dist(dist))
+                    planet_dist.append(dist)
 
                     # The gravity bit
-                    gravity = G * pm[j] / (dist**2)
+                    gravity = G * mass / (dist**2)
                     tot_force[0] += dt * vect[0] * gravity / dist
                     tot_force[1] += dt * vect[1] * gravity / dist
 
-                    if dist < planet.radius:
+                    if dist < radius:
                         remove_kite = True
                         break
 
@@ -309,7 +328,7 @@ class GameDisplay(Widget):
                     k.velocity = vel
 
                     # Update Position
-                    k.pos = (p[0] + dt * vel[0], p[1] + dt * vel[1])
+                    k.pos = self.real_to_screen((p[0] + dt * vel[0], p[1] + dt * vel[1]))
 
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
@@ -430,17 +449,20 @@ class GameDisplay(Widget):
         self.color_bg = theme['main_bg']
 
 
-    def transform_pos(self, pos):
-        tv = self.transform_vect
-        return (pos[0] + tv[0], pos[1] + tv[1])
+    def real_to_screen_scalar(self, s):
+        return float(s) * self.scale_factor
 
 
-    def scale_dist(self, dist):
-        return dist * self.scale_factor
+    def screen_to_real_scalar(self, s):
+        return float(s) / self.scale_factor
 
 
-    def scale_vect(self, vect):
-        return (vect[0] * self.scale_factor, vect[1] * self.scale_factor)
+    def screen_to_real(self, pos):
+        return ((pos[0] - self.transform_vect[0]) / self.scale_factor, (pos[1] - self.transform_vect[1]) / self.scale_factor)
+
+
+    def real_to_screen(self, pos):
+        return (pos[0] * self.scale_factor + self.transform_vect[0], pos[1] * self.scale_factor + self.transform_vect[1])
 
 
     def pause_game_clock(self):

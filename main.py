@@ -21,10 +21,10 @@ Config.set('graphics', 'orientation', 'landscape')
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
 
-if True:
+if __name__ == '__main__':
     Config.set('graphics', 'resizable', 1)
-    Config.set('graphics', 'width', '1920') #1280x720  1920x1080
-    Config.set('graphics', 'height', '1080')
+    Config.set('graphics', 'width', '1280') #1280x720  1920x1080
+    Config.set('graphics', 'height', '720')
 
 from kivy.app import App
 from kivy.core.window import Window
