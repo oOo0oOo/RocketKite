@@ -8,7 +8,6 @@ from kivy.uix.label import Label
 from kivy.properties import ListProperty
 
 from game_objects import *
-from levels import progression_cycle
 from utils import random_sequential
 from popups import IntroPopup, PausePopup
 
@@ -22,18 +21,15 @@ class GameDisplay(Widget):
         # self.load_level()
 
 
-    def return_to_main(self):
-        self.parent.return_to_main(tuple(self.current_highscore))
+    def return_to_main(self, next_level = False):
+        self.parent.return_to_main(tuple(self.current_highscore), next_level = next_level)
 
 
-    def load_level(self, params = False, current_highscore = (-1,-1)):
+    def load_level(self, params, current_highscore = (-1,-1)):
         self.current_highscore = list(current_highscore)
         self.initial_highscore = current_highscore
         self.clear_widgets()
         self.pause_game_clock()
-
-        if params == False:
-            params = progression_cycle.next()
 
         self.params = params
         self.sim_speedup = params['sim_speedup']
@@ -86,7 +82,7 @@ class GameDisplay(Widget):
                 p = [p_pos[ii] + d * vect[ii] for ii in range(2)]
                 points += self.real_to_screen(p)
 
-            cp = Checkpoint(points,params['checkpoint_reward'][i], scale = self.scale_factor)
+            cp = Checkpoint(points, scale = self.scale_factor)
 
             self.add_widget(cp)
             self.checkpoints.append(cp)
@@ -105,7 +101,7 @@ class GameDisplay(Widget):
         self.brake_btn = FlatButton(btn_callback = self.btn_press,
             btn_name = 'down', btn_img = 'img/buttons/down.png', size = btn_size, pos = down_pos)
 
-        self.pause_btn = FlatButton(btn_callback = self.btn_press,
+        self.pause_btn = AnimFlatButton(btn_callback = self.btn_press,
             btn_name = 'pause', btn_img = 'img/buttons/pause.png', size = btn_size2,
             pos = (self.size_win[0]-btn_size2[0]-border, self.size_win[1]-btn_size2[0]-border))
 
@@ -149,8 +145,12 @@ class GameDisplay(Widget):
         self.start_launch()
 
         # Display the Introduction popup if its the first level
-        if self.params['name'] == 'one_planet':
-            self.intro_popup = IntroPopup(size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
+        title = self.params.get('intro_title', '')
+        text = self.params.get('intro_text', '')
+        if title:
+            data = {'title': title, 'text': text}
+            self.intro_popup = IntroPopup(data = data, size_hint = (0.6,0.8),
+                on_dismiss = self.popup_dismissed, scale = self.scale_factor)
             self.intro_popup.open()
 
 
@@ -162,8 +162,6 @@ class GameDisplay(Widget):
         scale = [float(self.size_win[i]) / size_sim[i] for i in range(2)]
         scale = round(min(scale),4)
 
-        print scale
-
         # Transform
         scaled_sim = [int(s*scale) for s in size_sim]
         transform = [(w-s)/2 for w,s in zip(self.size_win, scaled_sim)]
@@ -174,26 +172,38 @@ class GameDisplay(Widget):
 
     def popup_dismissed(self, popup):
         if type(popup) == PausePopup:
-            if popup.do_return:
-                self.return_to_main()
-            elif popup.do_restart and not self.launching:
-                print 'restart'
-                self.start_launch()
-        # self.start_game_clock()
+            # Popup is dismissed twice bc all touch events are caught
+            if not popup.returned:
+                popup.returned = True
+                if popup.do_next_level:
+                    self.return_to_main(next_level = True)
+                elif popup.do_return:
+                    self.return_to_main()
+                elif popup.do_restart and not self.launching:
+                    print 'restart'
+                    self.start_launch()
 
 
     def btn_press(self, *args, **kwargs):
         btn_down = args[0].state == 'down'
         btn = args[0].name # This is defined to .text is not neede anymore
 
+        # Open the pause popup
         if btn == 'pause' and btn_down:
             self.update_highscore()
-            new_time, new_points, new_level = self.check_highscore()
+            new_time, new_points, new_level = self.check_initial_highscore()
+
             self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
                 new_time = new_time, new_points = new_points, new_level = new_level,
                 size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
-            self.pause_popup.open()
+
+            self.pause_btn.stop_animation()
             self.pause_game_clock()
+            self.pause_popup.open()
+
+            # Now we reset the initial highscore to the current high score
+            # (opening popup cancels blinking and resets achievements)
+            self.initial_highscore = tuple(self.current_highscore)
             return
 
         if self.paused and btn_down and btn != 'pause':
@@ -333,9 +343,9 @@ class GameDisplay(Widget):
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
                     for c, cp in enumerate(self.checkpoints):
-                        # Have to take other checkpoint before retaking this one
+                        # Have to take all other checkpoints before retaking this one
                         # Also prevents multiple rewards during passage of the checkpoint
-                        if not self.last_checkpoint == c:
+                        if not self.last_checkpoint == c and not self.passed_checkpoint[c]:
 
                             planet_id = self.params['checkpoint_planet'][c]
                             seg = self.params['checkpoint_segment'][c]
@@ -344,31 +354,35 @@ class GameDisplay(Widget):
                                 v = planet_vect[planet_id]
                                 angle = math.degrees(math.atan2(v[1],v[0]))
                                 angle = (270-angle)%360
+                                ca = self.params['checkpoint_angle'][c]
 
-                                if abs(angle - self.params['checkpoint_angle'][c]) < 2.5:
+                                if abs((angle-ca)%360) < 2.5:
                                     # Currently on checkpoint
                                     self.last_checkpoint = c
 
                                     # Change active checkpoints (color)
-                                    for i, check in enumerate(self.checkpoints):
-                                        if i == self.last_checkpoint:
-                                            check.active = False
-                                        else:
-                                            check.active = True
+                                    cp.active = False
 
-                                    # give reward
-                                    self.reward += self.params['checkpoint_reward'][c]
-                                    self.reward_disp.text = str(self.reward)
-
-                                    # Log checkpoint and check if first time all checkoints
-                                    not_all = all(self.passed_checkpoint)
+                                    # Log checkpoint and check if first time all checkpoints
+                                    before_any = any(self.passed_checkpoint)
                                     self.passed_checkpoint[c] = True
-                                    if all(self.passed_checkpoint) and not not_all:
-                                        self.time_disp.text = str(round(self.episode_time, 1))
-                                        self.time_complete_checkpoints = self.episode_time
 
-                                        # print 'Completed checkpoints', round(self.episode_time,1)
-                                    break
+                                    if all(self.passed_checkpoint) and before_any:
+                                        # Give reward
+                                        self.reward += 1
+                                        self.time_complete_checkpoints = self.episode_time
+                                        self.passed_checkpoint = [False for i in range(len(self.checkpoints))]
+
+                                        # Update display
+                                        self.reward_disp.text = str(self.reward)
+                                        self.time_disp.text = str(round(self.episode_time, 1))
+                                        for c in self.checkpoints:
+                                            c.active = True
+
+                                        # Update the highscore
+                                        self.update_highscore()
+
+                                    break # No need to check other checkpoints
 
 
             # Remove kite if collided
@@ -383,7 +397,7 @@ class GameDisplay(Widget):
                 self.trace.add_point(self.kite.pos, self.kite.get_angle_rev())
 
 
-    def check_highscore(self):
+    def check_initial_highscore(self):
         '''
             Compares current against initial highscore
             initial high score is only updated when you crash
@@ -401,15 +415,25 @@ class GameDisplay(Widget):
 
 
     def update_highscore(self):
+        t, p, l = False, False, False
         if self.time_complete_checkpoints != -1:
             if self.current_highscore[0] == -1:
                 self.current_highscore[0] = self.time_complete_checkpoints
+                t, l = True, True
 
             elif self.time_complete_checkpoints < self.current_highscore[0]:
                 self.current_highscore[0] = self.time_complete_checkpoints
+                t = True
 
         if self.reward > 0 and self.reward > self.current_highscore[1]:
             self.current_highscore[1] = self.reward
+            p = True
+
+        # Start blinking if new record
+        if t or p or l:
+            self.pause_btn.start_animation()
+
+        return t, p, l
 
 
     def set_color_theme(self, theme):
