@@ -62,7 +62,7 @@
         Rectangle:
             source: 'img/kite_tail.png'
             size: self.scale * 12, self.scale * 20
-            pos: self.pos[0] - self.scale * 6, self.pos[1] - self.scale * 10
+            pos: self.pos[0] - self.scale * 6, self.pos[1] - self.scale * 7
 
     canvas.after:
         PopMatrix
@@ -183,18 +183,18 @@
     color_bg: 0.5,0.5,0.5
     color_hl: 0.9,0.9,0.9
     btn_img: ''
-    down: False
+    is_down: False
 
     canvas.before:
         Color:
-            rgb: self.color_hl if self.down else self.color_bg
+            rgb: self.color_hl if self.is_down else self.color_bg
         Rectangle:
             size: self.size
             pos: self.pos
 
     canvas.after:
         Color:
-            rgb: self.color_bg if self.down else self.color_hl
+            rgb: self.color_bg if self.is_down else self.color_hl
 
         # !! Image has to be the same aspect ratio as btn in game...
         Rectangle:

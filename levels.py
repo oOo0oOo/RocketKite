@@ -1,32 +1,120 @@
 import random
 import itertools as it
 
-test_level = {
+
+tutorial1_level = {
     # General parameters
+    'name': 'tutorial1',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
 
     # Planet data
-    'planet_pos': ((225,500), (710,350), (850,500)),
-    'planet_radius': (50,45,42),
-    'planet_mass': (200,150,120),
+    'planet_pos': ((550,390), ),
+    'planet_radius': (75,),
+    'planet_mass': (280,),
+    'planet_img': ('city1',),
 
     # Rocket data
-    'acc': 0.1,
+    'acc': 0.05, # dist / s
 
     # Canon data
     'canon_planet': 0,
-    'canon_planet_angle': 180, # Which position on planet (90 = east)
+    'canon_planet_angle': 0, # Which position on planet (90 = east)
     'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 8.5
+    'canon_velocity': 7.8,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,0,0),
+    'checkpoint_angle': (45,90,180),
+    'checkpoint_segment': ((110,220), (180,265),(100,200)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 2, 3),
+
+    # Intro popup
+    'intro_title': 'LIFTOFF!',
+    'intro_text': 'pass all checkpoints\nto activate next level'
+
+}
+
+tutorial2_level = {
+    # General parameters
+    'name': 'tutorial2',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((550,390), ),
+    'planet_radius': (75,),
+    'planet_mass': (280,),
+    'planet_img': ('city1',),
+
+    # Rocket data
+    'acc': 0.04, # dist / s
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 0, # Which position on planet (90 = east)
+    'canon_max_angle': 75, # How much does it move
+    'canon_velocity': 7.5,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,0,0,0),
+    'checkpoint_angle': (0,90,180,270),
+    'checkpoint_segment': ((150,250),(150,250),(150,250),(150,250)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 2, 3),
+
+    # Intro popup
+    'intro_title': 'ROUND ORBIT',
+    'intro_text': 'accelerating and braking\nshows the most effect\non the opposite side of the planet'
+
 }
 
 
-
-one_planet_level = {
+tutorial3_level = {
     # General parameters
-    'name': 'one_planet',
+    'name': 'tutorial3',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((400,390), ),
+    'planet_radius': (75,),
+    'planet_mass': (280,),
+    'planet_img': ('city1',),
+
+    # Rocket data
+    'acc': 0.045, # dist / s
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 0, # Which position on planet (90 = east)
+    'canon_max_angle': 75, # How much does it move
+    'canon_velocity': 6.5,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,0),
+    'checkpoint_angle': (270,90),
+    'checkpoint_segment': ((100,170),(300,450)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 2, 3),
+
+    # Intro popup
+    'intro_title': 'FAR AWAY',
+    'intro_text': 'accelerate at the right time\nfrom a small circular orbit'
+
+}
+
+
+tutorial4_level = {
+    # General parameters
+    'name': 'tutorial4',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -50,10 +138,14 @@ one_planet_level = {
     'checkpoint_planet': (0,0,0),
     'checkpoint_angle': (90,180,270),
     'checkpoint_segment': ((250,380), (160,255),(250,380)),
-    'checkpoint_reward': (1,1,1),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (5, 15, 30)
+    'stars': (1, 2, 3),
+
+    # Intro popup
+    'intro_title': 'PERFECTING ORBITS',
+    'intro_text': 'do go gentle into\nthat good night'
+
 }
 
 
@@ -83,10 +175,9 @@ two_planet_level = {
     'checkpoint_planet': (0,0,1),
     'checkpoint_angle': (270,90,90),
     'checkpoint_segment': ((125,200),(228,262),(80,130)),
-    'checkpoint_reward': (1,2,1),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (5, 15, 30)
+    'stars': (1, 3, 6)
 }
 
 
@@ -116,10 +207,9 @@ planet_moon_level = {
     'checkpoint_planet': (0,1,1),
     'checkpoint_angle': (270,90,270),
     'checkpoint_segment': ((125,250),(50,110),(180,230)),
-    'checkpoint_reward': (1,1,1),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (5, 10, 20)
+    'stars': (1, 3, 6)
 }
 
 planet_moon_planet_level = {
@@ -148,10 +238,9 @@ planet_moon_planet_level = {
     'checkpoint_planet': (0,2,1,1),
     'checkpoint_angle': (270,90,0,180),
     'checkpoint_segment': ((85,250),(85,250),(45,80),(45,80)),
-    'checkpoint_reward': (1,1,2,2),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (5, 12, 25)
+    'stars': (1, 3, 6)
 }
 
 
@@ -183,25 +272,155 @@ triple_planet_level = {
     'checkpoint_planet': (0,1,1,2),
     'checkpoint_angle': (270,223.025,43.025,43.025),
     'checkpoint_segment': ((200,250),(180,220),(86.5915+3,118.5915-3),(70,110)),
-    'checkpoint_reward': (1,1,2,1),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (5, 12, 25)
+    'stars': (1, 3, 6)
 }
 
 
+one_push_level = {
+    # General parameters
+    'name': 'one_push',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
 
-progression_cycle = it.cycle([one_planet_level, two_planet_level,
-        planet_moon_level, planet_moon_planet_level, triple_planet_level])
+    # Planet data
+    'planet_pos': ((300,390), (550,390), (800,390)),
+    'planet_radius': (70,20,70),
+    'planet_mass': (220,-80,220),
+    'planet_img': ('city1','repulsor1','city1'),
+
+    # Rocket data
+    'acc': 0.06, # dist / s
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 182, # Which position on planet (90 = east)
+    'canon_max_angle': 80, # How much does it move
+    'canon_velocity': 6.5,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,0,2,2),
+    'checkpoint_angle': (270, 90, 90, 270),
+    'checkpoint_segment': ((130,200),(100,140),(130,200),(100,140)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
+triangle_push_level = {
+    # General parameters
+    'name': 'triangle_push',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((300,390), (550,690), (800,390)),
+    'planet_radius': (70,25,70),
+    'planet_mass': (220,-40,220),
+    'planet_img': ('city1','repulsor1','city1'),
+
+    # Rocket data
+    'acc': 0.065, # dist / s
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 182, # Which position on planet (90 = east)
+    'canon_max_angle': 80, # How much does it move
+    'canon_velocity': 6.5,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,2,1),
+    'checkpoint_angle': (270,90,180),
+    'checkpoint_segment': ((125,225),(125,225),(50,110)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
+
+diamond_push_level = {
+    # General parameters
+    'name': 'diamond_push',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((300,390), (550,670), (550,50), (800,390)),
+    'planet_radius': (70,25,25,70),
+    'planet_mass': (240,-35,-35,240),
+    'planet_img': ('city1','repulsor1','repulsor1','city1'),
+
+    # Rocket data
+    'acc': 0.065, # dist / s
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 182, # Which position on planet (90 = east)
+    'canon_max_angle': 80, # How much does it move
+    'canon_velocity': 6.5,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,3,1),
+    'checkpoint_angle': (270,90,180),
+    'checkpoint_segment': ((125,225),(125,225),(260,340)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
+
+double_push_level = {
+    # General parameters
+    'name': 'double_push',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((100,390), (550,390), (1000,390)),
+    'planet_radius': (25,70,25),
+    'planet_mass': (-50,240,-50),
+    'planet_img': ('repulsor1','city1','repulsor1'),
+
+    # Rocket data
+    'acc': 0.065, # dist / s
+
+    # Canon data
+    'canon_planet': 1,
+    'canon_planet_angle': 90, # Which position on planet (90 = east)
+    'canon_max_angle': 80, # How much does it move
+    'canon_velocity': 7.,
+
+    # Checkpoint data
+    'checkpoint_planet': (0,2),
+    'checkpoint_angle': (90,270),
+    'checkpoint_segment': ((50,100),(50,100)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
+# progression_cycle = it.cycle([tutorial4_level, two_planet_level,
+#         planet_moon_level, planet_moon_planet_level, triple_planet_level])
 
 
 progression_levels = [
-    ['one_planet', one_planet_level],
-    ['two_planet', two_planet_level],
-    ['planet_moon', planet_moon_level],
-    ['planet_moon_planet', planet_moon_planet_level],
-    ['triple_planet', triple_planet_level]
+    tutorial1_level, tutorial2_level,
+    tutorial3_level, tutorial4_level,
+
+    two_planet_level, planet_moon_level,
+    planet_moon_planet_level, triple_planet_level,
+
+    one_push_level, diamond_push_level,
+    triangle_push_level, double_push_level
+
 ]
+
+n_levels = len(progression_levels)
 
 
 def random_level():

@@ -2,6 +2,7 @@ from kivy.properties import NumericProperty, StringProperty, ListProperty, Boole
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.animation import Animation
+from kivy.clock import Clock
 
 import math
 import random
@@ -239,10 +240,9 @@ class Checkpoint(Widget):
     active = BooleanProperty(True)
     scale = NumericProperty(1.0)
 
-    def __init__(self, points, reward, scale = 1.0, **kwargs):
+    def __init__(self, points, scale = 1.0, **kwargs):
         super(Checkpoint, self).__init__(**kwargs)
         self.points = points
-        self.reward = reward
         self.scale = scale
         self.active = True
 
@@ -260,7 +260,7 @@ class FlatButton(Widget):
     color_bg = ListProperty([0.1,0.1,0.1])
     color_hl = ListProperty([0.8,0.8,0.8])
     btn_img = StringProperty('')
-    down = BooleanProperty(False)
+    is_down = BooleanProperty(False)
 
     def __init__(self, btn_callback, btn_name = '', btn_img = '', **kwargs):
         super(FlatButton, self).__init__(**kwargs)
@@ -279,5 +279,30 @@ class FlatButton(Widget):
 
 
     def _btn_callback(self, *args, **kwargs):
-        self.down = args[0].state == 'down'
+        self.is_down = args[0].state == 'down'
         self.btn_callback(*args, **kwargs)
+
+
+
+class AnimFlatButton(FlatButton):
+    def __init__(self, *args, **kwargs):
+        super(AnimFlatButton, self).__init__(*args, **kwargs)
+
+        # Blinking animation
+        self.anim_running = False
+
+
+    def toggle_down(self, dt):
+        self.is_down = not self.is_down
+
+
+    def start_animation(self):
+        if not self.anim_running:
+            Clock.schedule_interval(self.toggle_down, 0.8)
+            self.anim_running = True
+
+
+    def stop_animation(self):
+        if self.anim_running:
+            Clock.unschedule(self.toggle_down)
+            self.anim_running = False

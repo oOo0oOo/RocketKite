@@ -3,6 +3,8 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 
+from levels import n_levels
+
 
 class CleanPopup(Popup):
     def __init__(self, **kwargs):
@@ -23,30 +25,31 @@ class CleanPopup(Popup):
 
 
 class IntroPopup(CleanPopup):
-    def __init__(self, scale = 1.0, **kwargs):
+    def __init__(self, data = {}, scale = 1.0, **kwargs):
         super(IntroPopup, self).__init__(**kwargs)
 
-        data = {'title': 'FLY YOUR ROCKET KITE', 'text': 'pass all [b]checkpoints[/b]\nactivate [b]next level[/b]\n\ncollect [b]points[/b]\nreceive [b]MEDALS[/b]\n'}
+        # data = {'title': 'ROCKET KITE', 'text': 'To activate [b]next level[/b]\npass all [b]checkpoints[/b]\n\n\nCollect [b]kites[/b]\nget [b]STARS[/b]\n'}
+        if not data:
+            data = {'title': '', 'text': ''}
 
         main_layout = BoxLayout(orientation = 'vertical', padding = 15 * scale, spacing = 25 * scale)
-
 
         main_layout.add_widget(Label(text = data['title'], font_size = 42 * scale, color = (0.1,0.1,0.1,1.0),
             h_align = 'middle', size_hint = (0.8,0.15), pos_hint = {'center_x': 0.5}))
         main_layout.add_widget(Label(text = data['text'], markup = True, color = (0.1,0.1,0.1,1.0),
             h_align = 'middle', size_hint = (0.8,0.6), font_size = 36 * scale, pos_hint = {'center_x': 0.5}))
-        # main_layout.add_widget(cancel_btn)
-
         self.content = main_layout
 
 
-    def do_protection(self, btn):
+    def on_touch_down(self, *args):
         self.dismiss()
 
 
 class PausePopup(CleanPopup):
     def __init__(self, highscore, stars = [1,2,3], new_time = False, new_points = False, new_level = False, scale = 1.0, **kwargs):
         super(PausePopup, self).__init__(**kwargs)
+
+        self.returned = False
 
         if new_level:
             title = 'NEW LEVEL!'
@@ -72,7 +75,10 @@ class PausePopup(CleanPopup):
                 break
             n_stars += 1
 
-        disp_stars =  '' + '*'*n_stars
+        if n_stars:
+            disp_stars =  '*'*n_stars
+        else:
+            disp_stars = ''
 
         if new_time:
             hs[0] = '[color=#ADADAD]CHECKPOINTS\n{}s[/color]'.format(hs[0])
@@ -80,9 +86,9 @@ class PausePopup(CleanPopup):
             hs[0] = 'CHECKPOINTS\n{}s'.format(hs[0])
 
         if new_points:
-            hs[1] = '[color=#ADADAD]KITES {}\n{}[/color]'.format(disp_stars, hs[1])
+            hs[1] = '[color=#ADADAD]KITES\n{}{}[/color]'.format(hs[1], disp_stars)
         else:
-            hs[1] = 'KITES {}\n {}'.format(disp_stars, hs[1])
+            hs[1] = 'KITES\n{}{}'.format(hs[1], disp_stars)
 
         text = '{}\n{}'.format(hs[1], hs[0])
 
@@ -95,12 +101,17 @@ class PausePopup(CleanPopup):
         btn_layout = BoxLayout(orientation = 'horizontal', padding = 10 * scale, spacing = 20* scale)
 
         menu_btn = Button(text = 'MENU', on_press = self.return_to_menu,
-            size_hint = (0.6,0.6), font_size = 25)
+            size_hint = (0.6,0.6), font_size = 25* scale)
         restart_btn = Button(text = 'RESTART', on_press = self.restart,
-            size_hint = (0.6,0.6), font_size = 25)
+            size_hint = (0.6,0.6), font_size = 25* scale)
 
         btn_layout.add_widget(menu_btn)
         btn_layout.add_widget(restart_btn)
+
+        if new_level:
+            level_btn = Button(text = 'NEW LEVEL', on_press = self.new_level,
+                size_hint = (0.6,0.6), font_size = 25* scale)
+            btn_layout.add_widget(level_btn)
 
         main_layout.add_widget(Label(text = data['title'], font_size = 42* scale, color = (0.1,0.1,0.1,1.0),
             halign = 'center', size_hint = (0.8,0.3), pos_hint = {'center_x': 0.5}))
@@ -111,10 +122,21 @@ class PausePopup(CleanPopup):
         self.content = main_layout
         self.do_return = False
         self.do_restart = False
+        self.do_next_level = False
+
+
+    def on_touch_down(self, *args):
+        super(PausePopup, self).on_touch_down(*args)
+        self.dismiss()
 
 
     def restart(self, btn):
         self.do_restart = True
+        self.dismiss()
+
+
+    def new_level(self, btn):
+        self.do_next_level = True
         self.dismiss()
 
 
