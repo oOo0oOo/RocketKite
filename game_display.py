@@ -450,6 +450,8 @@ class GameDisplay(Widget):
             self.kite.color_bg = theme['kite_bg']
             self.kite.color_hl = theme['kite_hl']
             self.kite.color_rocket = theme['kite_rocket']
+            self.kite.color_thrust = theme['kite_thrust']
+
 
             # Kite tail
             self.trace.tail.color_bg = theme['kite_tail']

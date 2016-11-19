@@ -22,6 +22,7 @@ def random_sequential():
         'kite_bg': c[7],
         'kite_hl': c[5],
         'kite_rocket': c[8],
+        'kite_thrust': c[0],
 
         'kite_tail': c[4],
         'triangle_bg': c[4],

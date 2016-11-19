@@ -26,10 +26,11 @@ class Planet(Widget):
 
         if img == 'wind1':
             self.rotation_period = 0.1 + random.random() # s
+            self.rotation_direction = 360
         else:
             self.rotation_period = 2 + 1 * random.random() # s
+            self.rotation_direction = random.choice([360, -360])
 
-        self.rotation_direction = random.choice([360, -360])
         self.anim_running = False
 
 
@@ -213,6 +214,10 @@ class Kite(Widget):
     color_bg = ListProperty([0.5,0.5,0.5])
     color_hl = ListProperty([0.5,0.5,0.5])
     color_rocket = ListProperty([0.5,0.5,0.5])
+    color_thrust = ListProperty([1,1,1])
+
+    opacity_backward = NumericProperty(0.0)
+    opacity_forward = NumericProperty(0.0)
     scale = NumericProperty(1.0)
 
     def __init__(self, scale = 1.0, **kwargs):
@@ -228,6 +233,18 @@ class Kite(Widget):
 
     def user_input(self, btn, btn_down):
         self.active_boosters[btn] = btn_down
+
+        if btn == 'up':
+            if btn_down:
+                self.opacity_backward = 1.0
+            else:
+                self.opacity_backward = 0.0
+
+        elif btn == 'down':
+            if btn_down:
+                self.opacity_forward = 1.0
+            else:
+                self.opacity_forward = 0.0
 
 
     def get_angle_rev(self):

@@ -140,6 +140,11 @@
 <Kite>:
     color_bg: 0.1,0.1,0.1
     color_hl: 0.1,0.1,0.1
+    color_thrust: 1.0,1.0,1.0
+
+    opacity_backward: 0.0
+    opacity_forward: 0.0
+
     velocity: 3,10
     scale: 2.5
 
@@ -171,6 +176,29 @@
             source: 'img/kite2_hl.png'
             size: self.scale * 48, self.scale * 54
             pos: self.pos[0] - self.scale * 24, self.pos[1] - self.scale * 34
+
+
+        # The Backwards thrust
+        Color:
+            rgba: self.color_thrust[0], self.color_thrust[1], self.color_thrust[2], self.opacity_backward
+
+        Rectangle:
+            source: 'img/kite2_thrust.png'
+            size: self.scale * 14, self.scale * 30
+            pos: self.pos[0] - self.scale * 7, self.pos[1] - self.scale * 65
+
+        Rotate:
+            angle: 180
+            origin: self.pos
+
+        # & forward thrust
+        Color:
+            rgba: self.color_thrust[0], self.color_thrust[1], self.color_thrust[2], self.opacity_forward
+        Rectangle:
+            source: 'img/kite2_thrust.png'
+            size: self.scale * 14, self.scale * 18
+            pos: self.pos[0] - self.scale * 7, self.pos[1] - self.scale * 35
+
 
     canvas.after:
         PopMatrix
