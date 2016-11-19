@@ -13,7 +13,7 @@ tutorial1_level = {
     'planet_pos': ((550,390), ),
     'planet_radius': (75,),
     'planet_mass': (280,),
-    'planet_img': ('city1',),
+    'planet_img': ('trees1',),
 
     # Rocket data
     'acc': 0.05, # dist / s
@@ -49,7 +49,7 @@ tutorial2_level = {
     'planet_pos': ((550,390), ),
     'planet_radius': (75,),
     'planet_mass': (280,),
-    'planet_img': ('city1',),
+    'planet_img': ('trees1',),
 
     # Rocket data
     'acc': 0.04, # dist / s
@@ -86,7 +86,7 @@ tutorial3_level = {
     'planet_pos': ((400,390), ),
     'planet_radius': (75,),
     'planet_mass': (280,),
-    'planet_img': ('city1',),
+    'planet_img': ('gras1',),
 
     # Rocket data
     'acc': 0.045, # dist / s
@@ -160,7 +160,7 @@ two_planet_level = {
     'planet_pos': ((280,390), (770,390)),
     'planet_radius': (70,70),
     'planet_mass': (250,250),
-    'planet_img': ('city1','mountain1'),
+    'planet_img': ('city1','trees1'),
 
     # Rocket data
     'acc': 0.055, # dist / s
@@ -223,7 +223,7 @@ planet_moon_planet_level = {
     'planet_pos': ((200,390), (550,390), (900,390)),
     'planet_radius': (70,30,70),
     'planet_mass': (180,50,180),
-    'planet_img': ('city1','mountain1','train1'),
+    'planet_img': ('trees1','gras1','train1'),
 
     # Rocket data
     'acc': 0.0525, # Dont put too much energy in the system
@@ -289,7 +289,7 @@ one_push_level = {
     'planet_pos': ((300,390), (550,390), (800,390)),
     'planet_radius': (70,30,70),
     'planet_mass': (220,-80,220),
-    'planet_img': ('city1','wind1','city1'),
+    'planet_img': ('city1','wind1','gras1'),
 
     # Rocket data
     'acc': 0.06, # dist / s
@@ -320,7 +320,7 @@ triangle_push_level = {
     'planet_pos': ((300,390), (550,690), (800,390)),
     'planet_radius': (70,25,70),
     'planet_mass': (220,-40,220),
-    'planet_img': ('city1','wind1','city1'),
+    'planet_img': ('gras1','wind1','trees1'),
 
     # Rocket data
     'acc': 0.065, # dist / s
@@ -352,7 +352,7 @@ diamond_push_level = {
     'planet_pos': ((300,390), (550,670), (550,50), (800,390)),
     'planet_radius': (70,25,25,70),
     'planet_mass': (240,-35,-35,240),
-    'planet_img': ('city1','wind1','wind1','city1'),
+    'planet_img': ('trees1','wind1','wind1','train1'),
 
     # Rocket data
     'acc': 0.065, # dist / s

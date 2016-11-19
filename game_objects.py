@@ -121,7 +121,7 @@ class Trace(Widget):
     color_bg = ListProperty([0.5,0.5,0.5])
     scale = NumericProperty(1.0)
 
-    def __init__(self, n_points = 50, line_delay = 5, scale = 1.0, **kwargs):
+    def __init__(self, n_points = 55, line_delay = 4, scale = 1.0, **kwargs):
         super(Trace, self).__init__(**kwargs)
         self.n_points = n_points
         self.line_delay = line_delay
