@@ -20,7 +20,7 @@ def random_sequential():
     c = random.choice(sequential_themes)
     theme = {
         'kite_bg': c[7],
-        'kite_hl': c[1],
+        'kite_hl': c[5],
         'kite_rocket': c[8],
 
         'kite_tail': c[4],

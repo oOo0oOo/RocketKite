@@ -43,7 +43,7 @@ class Planet(Widget):
 
 
     def on_anim_finished(self, *args):
-        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125, d = self.rotation_period)
+        self.anim = Animation(angle = self.angle + self.rotation_direction, d = self.rotation_period * 8)
         self.anim.bind(on_complete = self.on_anim_finished)
         self.anim.start(self)
 
@@ -52,8 +52,8 @@ class Planet(Widget):
         if self.anim_running:
             self.anim.cancel(self)
 
-        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125,
-            d = self.rotation_period * 2, transition = 'in_quad')
+        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125/2,
+            d = self.rotation_period, transition = 'in_quad')
         self.anim.bind(on_complete = self.on_anim_finished)
         self.anim.start(self)
         self.anim_running = True
@@ -138,8 +138,8 @@ class Trace(Widget):
         self.add_widget(self.tail)
 
         # Add triangles
-        triangle_scale = [0.65,0.52,0.5,0.4]
-        triangle_delay = 22
+        triangle_scale = [0.65,0.5,0.4]
+        triangle_delay = 26
         self.n_triangles = len(triangle_scale)
         self.triangle_inds = [38 + i*triangle_delay for i in range(self.n_triangles)]
 

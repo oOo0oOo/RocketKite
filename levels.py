@@ -34,7 +34,7 @@ tutorial1_level = {
 
     # Intro popup
     'intro_title': 'LIFTOFF!',
-    'intro_text': 'pass all checkpoints\nto activate next level'
+    'intro_text': 'launch at the right moment\nto pass all checkpoints\n\nHint: tap on a planet to restart'
 
 }
 

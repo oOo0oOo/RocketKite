@@ -48,7 +48,7 @@ class GameDisplay(Widget):
 
             rad = self.real_to_screen_scalar(params['planet_radius'][i])
             img = params['planet_img'][i]
-            self.planets.append(Planet(radius = rad, pos = pos, img = img))
+            self.planets.append(Planet(radius = rad, pos = pos, img = img, on_touch_down = self.on_planet_touch))
             self.add_widget(self.planets[-1])
 
             # Calculate the canon pos
@@ -180,7 +180,6 @@ class GameDisplay(Widget):
                 elif popup.do_return:
                     self.return_to_main()
                 elif popup.do_restart and not self.launching:
-                    print 'restart'
                     self.start_launch()
 
 
@@ -217,6 +216,13 @@ class GameDisplay(Widget):
         self.kite.user_input(btn, btn_down)
 
 
+    def on_planet_touch(self, planet, touch):
+        if not self.launching:
+            vect = [planet.x - touch.x, planet.y - touch.y]
+            if math.hypot(*vect) < planet.radius:
+                self.start_launch()
+
+
     def launch_kite(self):
         pos, angle = self.canon.launch()
 
@@ -236,6 +242,9 @@ class GameDisplay(Widget):
         self.launching = False
         self.trace.opacity = 1.0
         self.kite.opacity = 1.0
+
+        # Start planet rotation
+        [p.start_rotation() for p in self.planets]
 
 
     def start_launch(self):
@@ -263,12 +272,13 @@ class GameDisplay(Widget):
             c.active = True
 
         # Remove kite and make new one
-        if self.kite is not None:
-            self.remove_widget(self.kite)
-
-        self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
-        self.add_widget(self.kite)
+        if self.kite is None:
+            self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
+            self.add_widget(self.kite)
         self.kite.opacity = 0.0
+
+        # Stop planet rotation
+        [p.stop_rotation() for p in self.planets]
 
         # Set random theme
         theme = random_sequential()
@@ -282,7 +292,6 @@ class GameDisplay(Widget):
     def update(self,dt):
         # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
-
             # Keep track of episode time
             self.episode_time += dt
             # Show the episode time in realtime if not all checkpoints

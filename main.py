@@ -96,7 +96,7 @@ class SettingsScreen(Screen):
         btn = Button(text = 'reset highscore', on_press = self.reset_highscore,
             size_hint_y = None,
             height = btn_fold/4,
-            font_size = 80 * s,
+            font_size = 70 * s,
             font_color = colors[8])
         btn.background_color = (0.8,0.1,0.1,1.0)
         btn.background_normal = ''
