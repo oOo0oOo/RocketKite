@@ -11,6 +11,7 @@ from collections import deque
 
 class Planet(Widget):
     radius = NumericProperty(2)
+    angle = NumericProperty(0)
     img_bg = StringProperty('')
     img_hl = StringProperty('')
     color_bg = ListProperty([0.5,0.5,0.5])
@@ -22,6 +23,40 @@ class Planet(Widget):
 
         self.img_bg = 'img/planets/' + img + '_bg.png'
         self.img_hl = 'img/planets/' + img + '_hl.png'
+
+        if img == 'wind1':
+            self.rotation_period = 0.1 + random.random() # s
+        else:
+            self.rotation_period = 2 + 1 * random.random() # s
+
+        self.rotation_direction = random.choice([360, -360])
+        self.anim_running = False
+
+
+    def stop_rotation(self):
+        if self.anim_running:
+            self.anim.cancel(self)
+            self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125/4,
+                d = self.rotation_period, transition = 'out_quint')
+            self.anim.start(self)
+            self.anim_running = False
+
+
+    def on_anim_finished(self, *args):
+        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125, d = self.rotation_period)
+        self.anim.bind(on_complete = self.on_anim_finished)
+        self.anim.start(self)
+
+
+    def start_rotation(self):
+        if self.anim_running:
+            self.anim.cancel(self)
+
+        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125,
+            d = self.rotation_period * 2, transition = 'in_quad')
+        self.anim.bind(on_complete = self.on_anim_finished)
+        self.anim.start(self)
+        self.anim_running = True
 
 
 class Canon(Widget):

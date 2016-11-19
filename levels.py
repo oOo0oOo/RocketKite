@@ -287,9 +287,9 @@ one_push_level = {
 
     # Planet data
     'planet_pos': ((300,390), (550,390), (800,390)),
-    'planet_radius': (70,20,70),
+    'planet_radius': (70,30,70),
     'planet_mass': (220,-80,220),
-    'planet_img': ('city1','repulsor1','city1'),
+    'planet_img': ('city1','wind1','city1'),
 
     # Rocket data
     'acc': 0.06, # dist / s
@@ -320,7 +320,7 @@ triangle_push_level = {
     'planet_pos': ((300,390), (550,690), (800,390)),
     'planet_radius': (70,25,70),
     'planet_mass': (220,-40,220),
-    'planet_img': ('city1','repulsor1','city1'),
+    'planet_img': ('city1','wind1','city1'),
 
     # Rocket data
     'acc': 0.065, # dist / s
@@ -352,7 +352,7 @@ diamond_push_level = {
     'planet_pos': ((300,390), (550,670), (550,50), (800,390)),
     'planet_radius': (70,25,25,70),
     'planet_mass': (240,-35,-35,240),
-    'planet_img': ('city1','repulsor1','repulsor1','city1'),
+    'planet_img': ('city1','wind1','wind1','city1'),
 
     # Rocket data
     'acc': 0.065, # dist / s
@@ -384,7 +384,7 @@ double_push_level = {
     'planet_pos': ((100,390), (550,390), (1000,390)),
     'planet_radius': (25,70,25),
     'planet_mass': (-50,240,-50),
-    'planet_img': ('repulsor1','city1','repulsor1'),
+    'planet_img': ('wind1','city1','wind1'),
 
     # Rocket data
     'acc': 0.065, # dist / s

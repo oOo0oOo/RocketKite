@@ -272,7 +272,7 @@ class MainScreen(Screen):
             return hs
         except:
             print 'Could not load highscores:', path
-            return {i: (-1,-1) for i in range(len(progression_levels))}
+            return {i: (100,-1) for i in range(len(progression_levels))}
 
 
     def save_highscore(self, path = 'highscore.kite'):

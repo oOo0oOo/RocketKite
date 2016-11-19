@@ -86,6 +86,15 @@
     color_bg: 0.5,0.5,0.5
     color_hl: 0.5,0.5,0.5
 
+    angle: 0
+
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.angle
+            axis: 0, 0, 1
+            origin: self.pos
+
     canvas:
         # BG
         Color:
@@ -103,6 +112,8 @@
             size: self.radius*2, self.radius*2
             pos: self.pos[0] - self.radius, self.pos[1] - self.radius
 
+    canvas.after:
+        PopMatrix
 
 <Canon>:
     color_bg: 0.5,0.5,0.5
