@@ -175,7 +175,7 @@ class MainScreen(Screen):
                 height = btn_size_x,
                 font_size = 80 * s,
                 font_color = self.colors[8])
-            btn.background_color = list(sequential_themes[t[int(i/4)]][int(5+(i%4)/2)]) + [1.] # Lol FIX
+            btn.background_color = self.colors[7]
             btn.background_normal = btn_img
             btn.background_down = ''
             btn.name = i

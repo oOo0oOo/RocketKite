@@ -365,7 +365,7 @@ class GameDisplay(Widget):
                                 angle = (270-angle)%360
                                 ca = self.params['checkpoint_angle'][c]
 
-                                if abs((angle-ca)%360) < 2.5:
+                                if abs((angle-ca)%360) < 4:
                                     # Currently on checkpoint
                                     self.last_checkpoint = c
 

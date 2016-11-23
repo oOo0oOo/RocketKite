@@ -24,10 +24,10 @@ def random_sequential():
         'kite_rocket': c[8],
         'kite_thrust': c[0],
 
-        'kite_tail': c[4],
-        'triangle_bg': c[4],
+        'kite_tail': c[5],
+        'triangle_bg': c[7],
         'triangle_hl': c[5],
-        'trace_bg': c[1],
+        'trace_bg': c[6],
 
         'planet_bg': c[8],
         'planet_hl': c[0],

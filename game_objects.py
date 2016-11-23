@@ -25,10 +25,10 @@ class Planet(Widget):
         self.img_hl = 'img/planets/' + img + '_hl.png'
 
         if img == 'wind1':
-            self.rotation_period = 0.1 + random.random() # s
+            self.rotation_period = 0.25 + 0.15 * random.random() # s
             self.rotation_direction = 360
         else:
-            self.rotation_period = 2 + 1 * random.random() # s
+            self.rotation_period = 2.5 + 1.5 * random.random() # s
             self.rotation_direction = random.choice([360, -360])
 
         self.anim_running = False
