@@ -179,7 +179,7 @@ two_planet_level = {
     # Checkpoint data
     'checkpoint_planet': (0,0,1),
     'checkpoint_angle': (270,90,90),
-    'checkpoint_segment': ((125,200),(228,262),(80,130)),
+    'checkpoint_segment': ((80,155),(218,272),(80,155)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
     'stars': (1, 3, 6)
@@ -251,7 +251,7 @@ planet_moon_planet_level = {
 
 planet_moon_planet2_level = {
     # General parameters
-    'name': 'planet_moon_planet',
+    'name': 'planet_moon_planet2',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -284,7 +284,7 @@ planet_moon_planet2_level = {
 
 planet_moon_planet3_level = {
     # General parameters
-    'name': 'planet_moon_planet',
+    'name': 'planet_moon_planet3',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -308,72 +308,6 @@ planet_moon_planet3_level = {
     'checkpoint_planet': (0,2,1,1),
     'checkpoint_angle': (270,90,0,180),
     'checkpoint_segment': ((35,100),(35,100),(175,275),(175,275)),
-
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6)
-}
-
-triple_planet3_level = {
-    # General parameters
-    'name': 'triple_planet',
-    'gravity_constant': 12,
-    'simulation_box': (1100,720),
-    'sim_speedup': 30,
-
-    # Planet data
-    'planet_pos': ((215,490), (690,330), (830,480)),
-    'planet_radius': (75,60,60),
-    'planet_mass': (200,150,135),
-    'planet_img': ('mountain1','city1','train1'),
-
-    # Rocket data
-    'acc': 0.05,
-
-    # Canon data
-    'canon_planet': 0,
-    'canon_planet_angle': 180, # Which position on planet (90 = east)
-    'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 6,
-
-    # Checkpoints
-    # Angle = 43.025, 223.025
-    # Distance = 205.183 --> 102.5915 +- 16
-    'checkpoint_planet': (0,1,1,2),
-    'checkpoint_angle': (270,223.025,43.025,43.025),
-    'checkpoint_segment': ((180,250),(155,220),(86.5915+3,118.5915-3),(74,124)),
-
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6)
-}
-
-triple_planet2_level = {
-    # General parameters
-    'name': 'triple_planet',
-    'gravity_constant': 12,
-    'simulation_box': (1100,720),
-    'sim_speedup': 30,
-
-    # Planet data
-    'planet_pos': ((250,290), (160,500), (860,410)),
-    'planet_radius': (55,52,63),
-    'planet_mass': (150,145,175),
-    'planet_img': ('city2','trees1','train1'),
-
-    # Rocket data
-    'acc': 0.05,
-
-    # Canon data
-    'canon_planet': 2,
-    'canon_planet_angle': 270, # Which position on planet (90 = east)
-    'canon_max_angle': 80, # How much does it move
-    'canon_velocity': 6.5,
-
-    # Checkpoints
-    # Angle = 43.025, 223.025
-    # Distance = 205.183 --> 102.5915 +- 16
-    'checkpoint_planet': (0,0,1,1,2,2),
-    'checkpoint_angle': (45,225,225,45,225,45),
-    'checkpoint_segment': ((75,135),(75,135),(75,135),(75,135),(75,135),(75,135)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
     'stars': (1, 3, 6)
@@ -415,34 +349,68 @@ triple_planet_level = {
     'stars': (1, 3, 6)
 }
 
-quad_planet4_level = {
+
+triple_planet2_level = {
     # General parameters
-    'name': 'triple_planet',
+    'name': 'triple_planet2',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
 
     # Planet data
-    'planet_pos': ((405,215), (695,215), (405,505), (695,505)),
-    'planet_radius': (38,38,38,38),
-    'planet_mass': (90,90,90,90),
-    'planet_img': ('city1','trees1','city2','mountain1'),
+    'planet_pos': ((250,290), (160,500), (860,410)),
+    'planet_radius': (55,52,63),
+    'planet_mass': (150,145,175),
+    'planet_img': ('city2','trees1','train1'),
+
+    # Rocket data
+    'acc': 0.05,
+
+    # Canon data
+    'canon_planet': 2,
+    'canon_planet_angle': 270, # Which position on planet (90 = east)
+    'canon_max_angle': 80, # How much does it move
+    'canon_velocity': 6.5,
+
+    # Checkpoints
+    # Angle = 43.025, 223.025
+    # Distance = 205.183 --> 102.5915 +- 16
+    'checkpoint_planet': (0,0,1,1,2,2),
+    'checkpoint_angle': (45,225,225,45,225,45),
+    'checkpoint_segment': ((75,135),(75,135),(75,135),(75,135),(75,135),(75,135)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
+triple_planet3_level = {
+    # General parameters
+    'name': 'triple_planet3',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((215,490), (690,330), (830,480)),
+    'planet_radius': (75,60,60),
+    'planet_mass': (200,150,135),
+    'planet_img': ('mountain1','city1','train1'),
 
     # Rocket data
     'acc': 0.05,
 
     # Canon data
     'canon_planet': 0,
-    'canon_planet_angle': 350, # Which position on planet (90 = east)
+    'canon_planet_angle': 180, # Which position on planet (90 = east)
     'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 7,
+    'canon_velocity': 6,
 
     # Checkpoints
     # Angle = 43.025, 223.025
     # Distance = 205.183 --> 102.5915 +- 16
-    'checkpoint_planet': (0,1,3,2),
-    'checkpoint_angle': (45,135,225,315),
-    'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
+    'checkpoint_planet': (0,1,1,2),
+    'checkpoint_angle': (270,223.025,43.025,43.025),
+    'checkpoint_segment': ((180,250),(155,220),(86.5915+3,118.5915-3),(74,124)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
     'stars': (1, 3, 6)
@@ -451,7 +419,7 @@ quad_planet4_level = {
 
 quad_planet_level = {
     # General parameters
-    'name': 'triple_planet',
+    'name': 'quad_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -484,7 +452,7 @@ quad_planet_level = {
 
 quad_planet2_level = {
     # General parameters
-    'name': 'triple_planet',
+    'name': 'quad_planet2',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -517,7 +485,7 @@ quad_planet2_level = {
 
 quad_planet3_level = {
     # General parameters
-    'name': 'triple_planet',
+    'name': 'quad_planet3',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,
@@ -548,9 +516,42 @@ quad_planet3_level = {
     'stars': (1, 3, 6)
 }
 
+quad_planet4_level = {
+    # General parameters
+    'name': 'quad_planet4',
+    'gravity_constant': 12,
+    'simulation_box': (1100,720),
+    'sim_speedup': 30,
+
+    # Planet data
+    'planet_pos': ((405,215), (695,215), (405,505), (695,505)),
+    'planet_radius': (38,38,38,38),
+    'planet_mass': (90,90,90,90),
+    'planet_img': ('city1','trees1','city2','mountain1'),
+
+    # Rocket data
+    'acc': 0.05,
+
+    # Canon data
+    'canon_planet': 0,
+    'canon_planet_angle': 350, # Which position on planet (90 = east)
+    'canon_max_angle': 75, # How much does it move
+    'canon_velocity': 7,
+
+    # Checkpoints
+    # Angle = 43.025, 223.025
+    # Distance = 205.183 --> 102.5915 +- 16
+    'checkpoint_planet': (0,1,3,2),
+    'checkpoint_angle': (45,135,225,315),
+    'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
+
+    # Stars (number of kites (checkpoint points) you need for a star)
+    'stars': (1, 3, 6)
+}
+
 quint_planet_level = {
     # General parameters
-    'name': 'triple_planet',
+    'name': 'quint_planet',
     'gravity_constant': 12,
     'simulation_box': (1100,720),
     'sim_speedup': 30,

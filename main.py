@@ -319,21 +319,28 @@ class RocketKiteApp(App):
         if key == 27:
             if self.game_menu.current == 'main':
                 return False
-            else:
-                return True
+            elif self.game_menu.current == 'game':
+                game = self.game_menu.get_screen('game').game
+                if not game.paused or game.launching:
+                    game.show_pause_popup()
 
         # menu key behaviour (nothing)
         elif key in (282, 319):
-            return True
+            pass
+
+        return True
 
     def on_pause(self):
-        self.game_menu.get_screen('game').game.pause_game_clock()
+        game = self.game_menu.get_screen('game').game
+        game.pause_game_clock()
         return True
 
     def on_resume(self):
         pass
 
     def on_stop(self):
+        game = self.game_menu.get_screen('game').game
+        game.pause_game_clock()
         print('Stopping App')
 
 

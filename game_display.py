@@ -183,26 +183,30 @@ class GameDisplay(Widget):
                     self.start_launch()
 
 
+    def show_pause_popup(self):
+        self.update_highscore()
+        new_time, new_points, new_level = self.check_initial_highscore()
+
+        self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
+            new_time = new_time, new_points = new_points, new_level = new_level,
+            size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
+
+        self.pause_btn.stop_animation()
+        self.pause_game_clock()
+        self.pause_popup.open()
+
+        # Now we reset the initial highscore to the current high score
+        # (opening popup cancels blinking and resets achievements)
+        self.initial_highscore = tuple(self.current_highscore)
+
+
     def btn_press(self, *args, **kwargs):
         btn_down = args[0].state == 'down'
         btn = args[0].name # This is defined to .text is not neede anymore
 
         # Open the pause popup
         if btn == 'pause' and btn_down:
-            self.update_highscore()
-            new_time, new_points, new_level = self.check_initial_highscore()
-
-            self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
-                new_time = new_time, new_points = new_points, new_level = new_level,
-                size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
-
-            self.pause_btn.stop_animation()
-            self.pause_game_clock()
-            self.pause_popup.open()
-
-            # Now we reset the initial highscore to the current high score
-            # (opening popup cancels blinking and resets achievements)
-            self.initial_highscore = tuple(self.current_highscore)
+            self.show_pause_popup()
             return
 
         if self.paused and btn_down and btn != 'pause':
@@ -359,13 +363,13 @@ class GameDisplay(Widget):
                             planet_id = self.params['checkpoint_planet'][c]
                             seg = self.params['checkpoint_segment'][c]
 
-                            if seg[0] < planet_dist[planet_id] < seg[1]:
+                            if seg[0]-0.5 < planet_dist[planet_id] < seg[1]+0.5:
                                 v = planet_vect[planet_id]
                                 angle = math.degrees(math.atan2(v[1],v[0]))
-                                angle = (270-angle)%360
                                 ca = self.params['checkpoint_angle'][c]
 
-                                if abs((angle-ca)%360) < 4:
+                                if abs((angle+ca+90)%360) < 5:
+
                                     # Currently on checkpoint
                                     self.last_checkpoint = c
 
