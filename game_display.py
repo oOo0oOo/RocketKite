@@ -28,6 +28,7 @@ class GameDisplay(Widget):
     def load_level(self, params, current_highscore = (-1,-1)):
         self.current_highscore = list(current_highscore)
         self.initial_highscore = current_highscore
+
         self.clear_widgets()
         self.pause_game_clock()
 
@@ -117,18 +118,18 @@ class GameDisplay(Widget):
 
         self.time_disp = Label(text = '546.3', font_size=32 * self.scale_factor,
             center = (pos_x, h1))
-        self.reward_disp = Label(text = '101', font_size=32 * self.scale_factor,
-            center = (pos_x, h2))
 
         self.time_img = Icon(img = 'img/icons/time.png',
             pos = (15, h1-icon_size/2), size = (icon_size,icon_size))
-        self.reward_img = Icon(img = 'img/icons/kite.png',
-            pos = (15, h2-icon_size/2), size = (icon_size,icon_size))
 
-        self.add_widget(self.reward_disp)
         self.add_widget(self.time_disp)
         self.add_widget(self.time_img)
-        self.add_widget(self.reward_img)
+
+        self.kite_icons = []
+        for i in range(3):
+            self.kite_icons.append(Icon(img = 'img/icons/kite.png',
+            pos = (15 + (i * icon_size * 1.25), h2-icon_size/2), size = (icon_size,icon_size)))
+            self.add_widget(self.kite_icons[-1])
 
         # Add trace
         self.trace = Trace(scale = self.scale_factor)
@@ -143,6 +144,8 @@ class GameDisplay(Widget):
 
         # This is really needed!
         self.start_launch()
+
+        self.update_highscore()
 
         # Display the Introduction popup if its the first level
         title = self.params.get('intro_title', '')
@@ -269,7 +272,6 @@ class GameDisplay(Widget):
         self.trace.opacity = 0.0
         self.trace.reset()
         self.time_disp.text = '0'
-        self.reward_disp.text = '0'
 
         # Make all checkpoints active
         for c in self.checkpoints:
@@ -298,8 +300,9 @@ class GameDisplay(Widget):
         if not self.paused and not self.launching:
             # Keep track of episode time
             self.episode_time += dt
+
             # Show the episode time in realtime if not all checkpoints
-            if not all(self.passed_checkpoint):
+            if self.time_complete_checkpoints == -1:
                 self.time_disp.text = str(int(self.episode_time))
 
             # Speed up the simulation a bit
@@ -387,7 +390,6 @@ class GameDisplay(Widget):
                                         self.passed_checkpoint = [False for i in range(len(self.checkpoints))]
 
                                         # Update display
-                                        self.reward_disp.text = str(self.reward)
                                         self.time_disp.text = str(round(self.episode_time, 1))
                                         for c in self.checkpoints:
                                             c.active = True
@@ -442,12 +444,20 @@ class GameDisplay(Widget):
             self.current_highscore[1] = self.reward
             p = True
 
+        # Update kite score
+        for i, n in enumerate(self.params['stars']):
+            if self.current_highscore[1] == -1:
+                self.kite_icons[i].opacity = 0.0
+            elif n <= self.current_highscore[1]:
+                self.kite_icons[i].opacity = 1.0
+            else:
+                self.kite_icons[i].opacity = 0.0
+
         # Start blinking if new record
         if t or p or l:
             self.pause_btn.start_animation()
 
         return t, p, l
-
 
     def set_color_theme(self, theme):
         if self.kite is not None:
@@ -478,10 +488,11 @@ class GameDisplay(Widget):
             btn.color_bg = theme['btn_bg']
             btn.color_hl = theme['btn_hl']
 
+        for k in self.kite_icons:
+            k.color_bg = theme['icon_bg']
+
         self.time_img.color_bg = theme['icon_bg']
-        self.reward_img.color_bg = theme['icon_bg']
         self.time_disp.color = list(theme['icon_bg']) + [1]
-        self.reward_disp.color = list(theme['icon_bg']) + [1]
 
         self.canon.color_bg = theme['canon_bg']
         self.trace.color_bg = theme['trace_bg']
