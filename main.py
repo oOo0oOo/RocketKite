@@ -80,7 +80,6 @@ class GameScreen(Screen):
         try:
             theme_ind = theme_names.index(theme)
             colors = sequential_themes[theme_ind]
-            print len(colors)
             self.game.color_theme = map_colors(colors)
         except ValueError:
             self.game.color_theme = False
