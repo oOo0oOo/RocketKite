@@ -4,7 +4,7 @@ __version__ = '0.1'
 import kivy
 kivy.require('1.7.2')
 
-from time import sleep
+from time import sleep, time
 from math import hypot
 from random import randrange
 
@@ -33,12 +33,14 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 
+from popups import IntroPopup
 from game_display import GameDisplay
 from game_objects import FlatButton
 from levels import progression_levels
-from utils import standard_color_theme, sequential_themes
+from utils import standard_color_theme, sequential_themes, theme_names, map_colors
 
 # Register fonts
 from kivy.core.text import LabelBase
@@ -74,15 +76,27 @@ class GameScreen(Screen):
         main_screen.current_game = -1
         self.parent.current = 'main'
 
+    def set_color_theme(self, theme):
+        try:
+            theme_ind = theme_names.index(theme)
+            colors = sequential_themes[theme_ind]
+            print len(colors)
+            self.game.color_theme = map_colors(colors)
+        except ValueError:
+            self.game.color_theme = False
+
+
 
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
 
+        self.last_press = 0.0 # Used for double click detection
+
         size_win = Window.size
         s = float(size_win[1]) / 720
-        credits_y = int(0.2 * size_win[1])
-        btn_fold = size_win[1]  - credits_y
+        std_h = int(size_win[1] / 20.)#int(0.075 * size_win[1])
+        btn_h = int(size_win[1] / 8.)
 
         main_l = GridLayout(cols = 1, padding = 50, spacing = 50,
             size_hint = (None, None), size = Window.size,
@@ -96,30 +110,76 @@ class SettingsScreen(Screen):
         #     color = colors[8])
         # main_l.add_widget(title)
 
-        # Credits
-        credits = Label(text = 'CODE & ART: Oliver Dressler', font_size = 50 * s, size_hint_y = None,
-            height = credits_y,
-            color = colors[8])
-        main_l.add_widget(credits)
+        # The color selection
+        color_label = Label(text = 'COLOR THEME', font_size = 40 * s, size_hint_y = None,
+            height = std_h, color = colors[8])
+        main_l.add_widget(color_label)
+
+        color_dropdown = DropDown()
+        tn = ['Random'] + theme_names
+        st = [[(0.8,0.8,0.8)] * 5 + [(0.1,0.1,0.1)] * 4]+ sequential_themes
+
+        color_select_btn = Button(text = 'Random',
+            size_hint_y = None,
+            height = btn_h,
+            font_size = 40 * s,
+            color = list(st[0][7]) + [1.0])
+        color_select_btn.background_color = list(st[0][4]) + [1.0]
+        color_select_btn.background_normal = ''
+        color_select_btn.background_down = ''
+
+        color_select_btn.bind(on_release=color_dropdown.open)
+        color_dropdown.bind(on_select=lambda instance, x: setattr(color_select_btn, 'text', x))
+
+        for name, theme in zip(tn, st):
+            theme_btn = Button(text = name,
+                size_hint_y = None,
+                height = btn_h,
+                font_size = 40 * s,
+                color = list(theme[7]) + [1.0])
+            theme_btn.background_color = list(theme[4]) + [1.0]
+            theme_btn.background_normal = ''
+            theme_btn.background_down = ''
+
+            theme_btn.bind(on_release=lambda btn: color_dropdown.select(btn.text))
+            theme_btn.bind(on_release=lambda btn: setattr(color_select_btn, 'background_color', btn.background_color))
+            theme_btn.bind(on_release=lambda btn: setattr(color_select_btn, 'color', btn.color))
+            color_dropdown.add_widget(theme_btn)
+
+        self.color_select_btn = color_select_btn
+        main_l.add_widget(self.color_select_btn)
+
 
         # Reset highscore
-        btn = Button(text = 'reset highscore', on_press = self.reset_highscore,
+        reset_label = Label(text = 'RESET HIGHSCORE', font_size = 40 * s, size_hint_y = None,
+            height = std_h,
+            color = colors[8])
+        main_l.add_widget(reset_label)
+
+        btn = Button(text = 'reset (double tap)', on_press = self.reset_highscore,
             size_hint_y = None,
-            height = btn_fold/4,
-            font_size = 70 * s,
-            font_color = colors[8])
+            height = btn_h,
+            font_size = 40 * s,
+            color = colors[0])
         btn.background_color = (0.6,0.1,0.1,1.0)
         btn.background_normal = ''
         btn.background_down = ''
         main_l.add_widget(btn)
 
 
+        # Credits
+        credits = Label(text = 'CODE & ART: Oliver Dressler', font_size = 40 * s, size_hint_y = None,
+            height = std_h,
+            color = colors[8])
+        main_l.add_widget(credits)
+
+
         # Return btn
         btn = Button(text = 'return', on_press = self.return_to_main,
             size_hint_y = None,
-            height = btn_fold/3,
-            font_size = 80 * s,
-            font_color = colors[8])
+            height = btn_h,
+            font_size = 40 * s,
+            color = colors[0])
         btn.background_color = colors[5]
         btn.background_normal = ''
         btn.background_down = ''
@@ -128,10 +188,23 @@ class SettingsScreen(Screen):
 
 
     def reset_highscore(self, btn):
-        self.parent.get_screen('main').reset_highscore()
+        if time() - self.last_press < 0.5:
+            self.parent.get_screen('main').reset_highscore()
+
+            data = {'title': 'RESET HIGHSCORE', 'text': 'Here we go again...'}
+            popup = IntroPopup(data = data, scale = Window.size[1] / 720., size_hint = (0.6,0.8))
+            popup.open()
+
+            self.last_press = 0.0
+        else:
+            self.last_press = time()
 
 
     def return_to_main(self, btn):
+        # Set the new color scheme
+        theme = self.color_select_btn.text
+        self.parent.get_screen('game').set_color_theme(theme)
+
         self.parent.current = 'main'
 
 

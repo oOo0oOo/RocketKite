@@ -18,6 +18,7 @@ class GameDisplay(Widget):
         super(GameDisplay, self).__init__(**kwargs)
         self.paused = True
         self.current_highscore = [-1,-1]
+        self.color_theme = False
         # self.load_level()
 
 
@@ -135,11 +136,16 @@ class GameDisplay(Widget):
         self.trace = Trace(scale = self.scale_factor)
         self.add_widget(self.trace)
 
-        # No kite yet
-        self.kite = None
+        # Make kite and hide it
+        self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
+        self.kite.opacity = 0.0
+        self.add_widget(self.kite)
 
         # Random scheme
-        theme = random_sequential()
+        if self.color_theme:
+            theme = self.color_theme
+        else:
+            theme = random_sequential()
         self.set_color_theme(theme)
 
         # This is really needed!
@@ -279,18 +285,16 @@ class GameDisplay(Widget):
         for c in self.checkpoints:
             c.active = True
 
-        # Remove kite and make new one
-        if self.kite is None:
-            self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
-            self.add_widget(self.kite)
+        # Hide Kite
         self.kite.opacity = 0.0
 
         # Stop planet rotation
         [p.stop_rotation() for p in self.planets]
 
         # Set random theme
-        theme = random_sequential()
-        self.set_color_theme(theme)
+        if self.color_theme == False:
+            theme = random_sequential()
+            self.set_color_theme(theme)
 
         # We are starting the launch sequence for a new kite
         self.launching = True
@@ -419,10 +423,9 @@ class GameDisplay(Widget):
                                     break # No need to check other checkpoints
 
 
-            # Remove kite if collided
+            # Hide kite if colided
             if remove_kite:
-                self.remove_widget(self.kite)
-                self.kite = None
+                self.kite.opacity = 0.0
                 self.update_highscore()
                 self.start_launch()
 

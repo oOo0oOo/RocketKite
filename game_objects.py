@@ -77,11 +77,13 @@ class Canon(Widget):
 
     def update(self, dt):
         if self.anim_running:
-            self.angle += dt * self.delta_angle
 
             # Rotate back
             if abs(self.angle - self.center_angle) > self.max_angle:
                 self.delta_angle *= -1
+
+            self.angle += dt * self.delta_angle
+
 
 
     def launch(self):
