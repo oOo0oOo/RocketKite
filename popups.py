@@ -108,8 +108,8 @@ class PausePopup(CleanPopup):
         btn_layout.add_widget(menu_btn)
         btn_layout.add_widget(restart_btn)
 
-        if new_level:
-            level_btn = Button(text = 'NEW LEVEL', on_press = self.new_level,
+        if highscore[0] != -1:
+            level_btn = Button(text = 'NEXT LEVEL', on_press = self.new_level,
                 size_hint = (0.6,0.6), font_size = 25* scale)
             btn_layout.add_widget(level_btn)
 

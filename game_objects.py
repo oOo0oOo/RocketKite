@@ -24,39 +24,24 @@ class Planet(Widget):
         self.img_bg = 'img/planets/' + img + '_bg.png'
         self.img_hl = 'img/planets/' + img + '_hl.png'
 
-        if img == 'wind1':
-            self.rotation_period = 0.25 + 0.15 * random.random() # s
-            self.rotation_direction = 360
-        else:
-            self.rotation_period = 2.5 + 1.5 * random.random() # s
-            self.rotation_direction = random.choice([360, -360])
+
+        self.rotation_period = 10 + 10 * random.random() # s
+        self.rotation_period *= random.choice([1, -1])
 
         self.anim_running = False
 
 
+    def update(self, dt):
+        if self.anim_running:
+            self.angle += dt * self.rotation_period
+
+
     def stop_rotation(self):
         if self.anim_running:
-            self.anim.cancel(self)
-            self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125/4,
-                d = self.rotation_period, transition = 'out_quint')
-            self.anim.start(self)
             self.anim_running = False
 
 
-    def on_anim_finished(self, *args):
-        self.anim = Animation(angle = self.angle + self.rotation_direction, d = self.rotation_period * 8)
-        self.anim.bind(on_complete = self.on_anim_finished)
-        self.anim.start(self)
-
-
     def start_rotation(self):
-        if self.anim_running:
-            self.anim.cancel(self)
-
-        self.anim = Animation(angle = self.angle + self.rotation_direction * 0.125/2,
-            d = self.rotation_period, transition = 'in_quad')
-        self.anim.bind(on_complete = self.on_anim_finished)
-        self.anim.start(self)
         self.anim_running = True
 
 
@@ -72,31 +57,41 @@ class Canon(Widget):
         self.scale = scale
         self.center_angle = float(angle)
 
-        # The aim movement of the canon
-        t = 0.5
-        anim = Animation(angle = angle-max_angle, d = t)
-        anim += Animation(angle = angle+max_angle, d = 2*t)
-        anim += Animation(angle = angle, d = t)
-        anim.repeat = True
-
-        self.anim = anim
+        self.anim_running = False
 
 
     def start_launch(self):
+        '''
+            Starts animation
+        '''
         self.opacity = 1.0
 
         # Set angle in middle
         self.angle = self.center_angle
 
-        # Animate the angle of the canon
-        self.anim.start(self)
+        # Start in a random direction
+        self.delta_angle = random.choice([200., -200.]) # degrees / s
+
+        self.anim_running = True
+
+
+    def update(self, dt):
+        if self.anim_running:
+            self.angle += dt * self.delta_angle
+
+            # Rotate back
+            if abs(self.angle - self.center_angle) > self.max_angle:
+                self.delta_angle *= -1
 
 
     def launch(self):
+        '''
+            Stops animation and returns initial pos and angle of kite
+        '''
         # Return position and angle
         angle = float(self.angle)
-        self.anim.cancel(self)
         self.opacity = 0.0
+        self.anim_running = False
         return self.pos, angle
 
 
@@ -341,20 +336,29 @@ class AnimFlatButton(FlatButton):
         super(AnimFlatButton, self).__init__(*args, **kwargs)
 
         # Blinking animation
+        self.blinking_delay = 0.8
         self.anim_running = False
+        self.t_since_last = 0.0
 
 
-    def toggle_down(self, dt):
+    def toggle_down(self, *args):
         self.is_down = not self.is_down
+
+
+    def update(self, dt):
+        if self.anim_running:
+            self.t_since_last += dt
+            if self.t_since_last >= self.blinking_delay:
+                self.toggle_down()
+                self.t_since_last = 0.0
 
 
     def start_animation(self):
         if not self.anim_running:
-            Clock.schedule_interval(self.toggle_down, 0.8)
             self.anim_running = True
+            self.t_since_last = self.blinking_delay
 
 
     def stop_animation(self):
         if self.anim_running:
-            Clock.unschedule(self.toggle_down)
             self.anim_running = False

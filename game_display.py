@@ -184,6 +184,8 @@ class GameDisplay(Widget):
                     self.return_to_main()
                 elif popup.do_restart and not self.launching:
                     self.start_launch()
+                elif self.paused and self.launching:
+                    self.start_game_clock()
 
 
     def show_pause_popup(self):
@@ -294,8 +296,23 @@ class GameDisplay(Widget):
         self.launching = True
         self.canon.start_launch()
 
+        if self.paused:
+            self.start_game_clock()
+
 
     def update(self,dt):
+
+        # Update blinking animation
+        self.pause_btn.update(dt)
+
+        # Update planet rotation
+        for p in self.planets:
+            p.update(dt)
+
+        # Update the canon if launching
+        if self.launching:
+            self.canon.update(dt)
+
         # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
             # Keep track of episode time
@@ -358,6 +375,8 @@ class GameDisplay(Widget):
 
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
+
+                    abs_vel = math.hypot(*k.velocity)
                     for c, cp in enumerate(self.checkpoints):
                         # Have to take all other checkpoints before retaking this one
                         # Also prevents multiple rewards during passage of the checkpoint
@@ -371,7 +390,7 @@ class GameDisplay(Widget):
                                 angle = math.degrees(math.atan2(v[1],v[0]))
                                 ca = self.params['checkpoint_angle'][c]
 
-                                if abs((angle+ca+90)%360) < 5:
+                                if abs((angle+ca+90)%360) < abs_vel:
 
                                     # Currently on checkpoint
                                     self.last_checkpoint = c
@@ -410,6 +429,7 @@ class GameDisplay(Widget):
             # Update Trace
             if not self.launching:
                 self.trace.add_point(self.kite.pos, self.kite.get_angle_rev())
+
 
 
     def check_initial_highscore(self):
@@ -521,9 +541,13 @@ class GameDisplay(Widget):
 
 
     def start_game_clock(self):
-        self.pause_game_clock() # For good measure?
+        if not self.paused:
+            print 'Why is the game clock already running?'
+            self.pause_game_clock() # For good measure?
+
         self.paused = False
-        Clock.schedule_interval(self.update, 1.0/40)
+        Clock.schedule_interval(self.update, 1./60)
+
 
 
 

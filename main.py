@@ -17,7 +17,7 @@ from kivy.config import Config
 
 # Screen resolution and
 Config.set('graphics', 'orientation', 'landscape')
-# Config.set('graphics', 'maxfps', '30')
+# Config.set('graphics', 'maxfps', '100')
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
 
@@ -63,12 +63,16 @@ class GameScreen(Screen):
         main_screen = self.parent.get_screen('main')
         main_screen.finished_game(new_highscore)
 
-        if not next_level:
-            main_screen.current_game = -1
-            self.parent.current = 'main'
-        else:
-            level_ind, hs = main_screen.set_next_level_from_game_screen()
-            self.load_level(progression_levels[level_ind], hs)
+        # Load next level (if not last)
+        if next_level:
+            level = main_screen.set_next_level_from_game_screen()
+            if level:
+                self.load_level(progression_levels[level[0]], level[1])
+                return
+
+        # Otherwise return to main screen
+        main_screen.current_game = -1
+        self.parent.current = 'main'
 
 
 class SettingsScreen(Screen):
@@ -77,8 +81,8 @@ class SettingsScreen(Screen):
 
         size_win = Window.size
         s = float(size_win[1]) / 720
-        title_y = int(0.2 * size_win[1])
-        btn_fold = size_win[1] - title_y
+        credits_y = int(0.2 * size_win[1])
+        btn_fold = size_win[1]  - credits_y
 
         main_l = GridLayout(cols = 1, padding = 50, spacing = 50,
             size_hint = (None, None), size = Window.size,
@@ -87,10 +91,16 @@ class SettingsScreen(Screen):
 
         colors = [list(c) + [1] for c in standard_color_theme()]
 
-        title = Label(text = 'Settings', font_size = 85 * s, size_hint_y = None,
-            height = title_y,
+        # title = Label(text = 'Settings', font_size = 85 * s, size_hint_y = None,
+        #     height = title_y,
+        #     color = colors[8])
+        # main_l.add_widget(title)
+
+        # Credits
+        credits = Label(text = 'CODE & ART: Oliver Dressler', font_size = 50 * s, size_hint_y = None,
+            height = credits_y,
             color = colors[8])
-        main_l.add_widget(title)
+        main_l.add_widget(credits)
 
         # Reset highscore
         btn = Button(text = 'reset highscore', on_press = self.reset_highscore,
@@ -98,10 +108,11 @@ class SettingsScreen(Screen):
             height = btn_fold/4,
             font_size = 70 * s,
             font_color = colors[8])
-        btn.background_color = (0.8,0.1,0.1,1.0)
+        btn.background_color = (0.6,0.1,0.1,1.0)
         btn.background_normal = ''
         btn.background_down = ''
         main_l.add_widget(btn)
+
 
         # Return btn
         btn = Button(text = 'return', on_press = self.return_to_main,
@@ -174,7 +185,7 @@ class MainScreen(Screen):
                 size_hint_y = None,
                 height = btn_size_x,
                 font_size = 80 * s,
-                font_color = self.colors[8])
+                color = self.colors[8])
             btn.background_color = self.colors[7]
             btn.background_normal = btn_img
             btn.background_down = ''
@@ -184,10 +195,8 @@ class MainScreen(Screen):
 
         btn = Button(on_press = self.on_settings,
             size_hint_y = None,
-            height = btn_size_x,
-            font_size = 80 * s,
-            font_color = self.colors[8])
-        btn.background_color = self.colors[5]
+            height = btn_size_x)
+        btn.background_color = self.colors[6]
         btn.background_normal = 'img/buttons/settings.png'
         btn.background_down = ''
 
@@ -227,7 +236,7 @@ class MainScreen(Screen):
                     if n_kites < s:
                         break
                     n_stars += 1
-                btn.text = '\n\n\n' + ' '.join(['*'] * n_stars)
+                btn.text = '\n\n' + ' '.join(['.'] * n_stars)
 
 
     def on_settings(self, btn):
@@ -243,6 +252,9 @@ class MainScreen(Screen):
         if n < len(progression_levels):
             self.current_game = n
             return self.current_game, self.highscore[self.current_game]
+
+        else:
+            return False
 
 
     def start_level(self, level_ind):
@@ -272,7 +284,7 @@ class MainScreen(Screen):
             return hs
         except:
             print 'Could not load highscores:', path
-            return {i: (100,-1) for i in range(len(progression_levels))}
+            return {i: (-1,-1) for i in range(len(progression_levels))}
 
 
     def save_highscore(self, path = 'highscore.kite'):
@@ -346,16 +358,16 @@ class RocketKiteApp(App):
 
 if __name__ == '__main__' :
     '''
-        try:
-            import cProfile as profile
-        except:
-            import profile
-        import pstats
-        profile.run('RocketKiteApp().run()', 'out.stats')
-        stats = pstats.Stats('out.stats')
-        stats.strip_dirs()
-        stats.sort_stats('tottime')
-        stats.print_stats()
-
+    try:
+        import cProfile as profile
+    except:
+        import profile
+    import pstats
+    profile.run('RocketKiteApp().run()', 'out.stats')
+    stats = pstats.Stats('out.stats')
+    stats.strip_dirs()
+    stats.sort_stats('tottime')
+    stats.print_stats()
     '''
+
     RocketKiteApp().run()
