@@ -57,8 +57,9 @@ tutorial2_level = {
     # Canon data
     'canon_planet': 0,
     'canon_planet_angle': 0, # Which position on planet (90 = east)
-    'canon_max_angle': 75, # How much does it move
-    'canon_velocity': 7.5,
+    'canon_planet_angle_delta': 30,
+    'canon_max_angle': 58, # How much does it move
+    'canon_velocity': 7.25,
 
     # Checkpoint data
     'checkpoint_planet': (0,0,0,0),
@@ -96,8 +97,9 @@ tutorial3_level = {
 
     # Canon data
     'canon_planet': 0,
-    'canon_planet_angle': 0, # Which position on planet (90 = east)
-    'canon_max_angle': 75, # How much does it move
+    'canon_planet_angle': 355, # Which position on planet (90 = east)
+    'canon_max_angle': 68, # How much does it move
+    'canon_planet_angle_delta': -20,
     'canon_velocity': 7.,
 
     # Checkpoint data

@@ -64,6 +64,7 @@ class GameDisplay(Widget):
         self.canon = Canon(pos = self.canon_pos,
             angle = angle,
             max_angle = params['canon_max_angle'],
+            planet_angle_delta = params.get('canon_planet_angle_delta', 0),
             scale = self.scale_factor)
 
         self.add_widget(self.canon)

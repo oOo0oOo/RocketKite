@@ -50,12 +50,13 @@ class Canon(Widget):
     angle = NumericProperty(0)
     color_bg = ListProperty([0.5,0.5,0.5])
 
-    def __init__(self, angle = 0, max_angle = 10, scale = 1.0, **kwargs):
+    def __init__(self, angle = 0, max_angle = 10, planet_angle_delta = 0, scale = 1.0, **kwargs):
         super(Canon, self).__init__(**kwargs)
         self.angle = angle
         self.max_angle = max_angle
         self.scale = scale
         self.center_angle = float(angle)
+        self.center_angle += planet_angle_delta
 
         self.anim_running = False
 
@@ -70,7 +71,7 @@ class Canon(Widget):
         self.angle = self.center_angle
 
         # Start in a random direction
-        self.delta_angle = random.choice([200., -200.]) # degrees / s
+        self.delta_angle = random.choice([185., -185.]) # degrees / s
 
         self.anim_running = True
 
