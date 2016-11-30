@@ -182,7 +182,7 @@ two_planet_level = {
     'checkpoint_segment': ((80,155),(218,272),(80,155)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 
@@ -214,7 +214,7 @@ planet_moon_level = {
     'checkpoint_segment': ((125,250),(50,110),(180,230)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 4)
+    'stars': (1, 2, 3)
 }
 
 planet_moon_planet_level = {
@@ -245,7 +245,7 @@ planet_moon_planet_level = {
     'checkpoint_segment': ((85,250),(85,250),(45,80),(45,80)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 
@@ -279,7 +279,7 @@ planet_moon_planet2_level = {
     'checkpoint_segment': ((70,140),(35,85),(35,85),(70,140)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 planet_moon_planet3_level = {
@@ -310,7 +310,7 @@ planet_moon_planet3_level = {
     'checkpoint_segment': ((35,100),(35,100),(175,275),(175,275)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 angle1 = 18.435
@@ -346,7 +346,7 @@ triple_planet_level = {
     'checkpoint_segment': ((70,120), (mid1-23,mid1+23), (mid1-23,mid1+23), (80,120), (70,120)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 
@@ -380,7 +380,7 @@ triple_planet2_level = {
     'checkpoint_segment': ((75,135),(75,135),(75,135),(75,135),(75,135),(75,135)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 triple_planet3_level = {
@@ -413,7 +413,7 @@ triple_planet3_level = {
     'checkpoint_segment': ((180,250),(155,220),(86.5915+3,118.5915-3),(74,124)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 
@@ -447,7 +447,7 @@ quad_planet_level = {
     'checkpoint_segment': ((35,80),(75,135),(75,135),(35,80)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 quad_planet2_level = {
@@ -480,7 +480,7 @@ quad_planet2_level = {
     'checkpoint_segment': ((35,80),(35,80),(45,92),(45,92),(45,92),(45,92)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 quad_planet3_level = {
@@ -513,7 +513,7 @@ quad_planet3_level = {
     'checkpoint_segment': ((50,100),(50,100),(80,150),(80,150)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 quad_planet4_level = {
@@ -546,7 +546,7 @@ quad_planet4_level = {
     'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 quint_planet_level = {
@@ -579,7 +579,7 @@ quint_planet_level = {
     'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
 
     # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 5)
+    'stars': (1, 2, 3)
 }
 
 

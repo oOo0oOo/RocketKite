@@ -79,8 +79,17 @@ class Canon(Widget):
         if self.anim_running:
 
             # Rotate back
-            if abs(self.angle - self.center_angle) > self.max_angle:
+            angle_diff = self.angle - self.center_angle
+
+            if angle_diff > self.max_angle:
+                self.angle = self.center_angle + self.max_angle
                 self.delta_angle *= -1
+
+            elif angle_diff < -self.max_angle:
+                self.angle = self.center_angle - self.max_angle
+                self.delta_angle *= -1
+
+
 
             self.angle += dt * self.delta_angle
 
@@ -294,6 +303,43 @@ class Checkpoint(Widget):
         self.points = points
         self.scale = scale
         self.active = True
+        self.active_state = True
+
+        # This also serves as anim_running
+        self.blinks_left = 0
+        self.delta_opacity = -3.
+
+
+    def set_active(self, is_active):
+        self.active_state = is_active
+
+
+    def update(self, dt):
+        # Blink until there are no blinks left
+        if self.blinks_left > 0:
+            self.opacity += dt * self.delta_opacity
+
+            if self.opacity <= 0:
+                self.delta_opacity *= -1
+                self.opacity = 0.0
+
+                # Put correct color before last fade in
+                if self.blinks_left == 1:
+                    self.active = self.active_state
+
+            elif self.opacity >= 1.0:
+                self.delta_opacity *= -1
+                self.opacity = 1.0
+                self.blinks_left -= 1 # We end on high
+
+        # Otherwise update the state
+        elif self.active != self.active_state:
+            self.active = self.active_state
+
+
+    def start_blinking(self, n_blinks = 3):
+        self.blinks_left = n_blinks
+        self.active = False # Take the not active color
 
 
 class Icon(Widget):

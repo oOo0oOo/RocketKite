@@ -283,7 +283,7 @@ class GameDisplay(Widget):
 
         # Make all checkpoints active
         for c in self.checkpoints:
-            c.active = True
+            c.set_active(True)
 
         # Hide Kite
         self.kite.opacity = 0.0
@@ -316,6 +316,10 @@ class GameDisplay(Widget):
         # Update the canon if launching
         if self.launching:
             self.canon.update(dt)
+
+        # Update the checkpoints
+        for checkpoint in self.checkpoints:
+            checkpoint.update(dt)
 
         # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
@@ -400,7 +404,7 @@ class GameDisplay(Widget):
                                     self.last_checkpoint = c
 
                                     # Change active checkpoints (color)
-                                    cp.active = False
+                                    cp.set_active(False)
 
                                     # Log checkpoint and check if first time all checkpoints
                                     before_any = any(self.passed_checkpoint)
@@ -414,8 +418,10 @@ class GameDisplay(Widget):
 
                                         # Update display
                                         self.time_disp.text = str(round(self.episode_time, 1))
+
                                         for c in self.checkpoints:
-                                            c.active = True
+                                            c.set_active(True)
+                                            c.start_blinking()
 
                                         # Update the highscore
                                         self.update_highscore()
