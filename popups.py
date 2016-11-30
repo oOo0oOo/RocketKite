@@ -46,7 +46,7 @@ class IntroPopup(CleanPopup):
 
 
 class PausePopup(CleanPopup):
-    def __init__(self, highscore, stars = [1,2,3], new_time = False, new_points = False, new_level = False, scale = 1.0, **kwargs):
+    def __init__(self, highscore, new_time = False, new_points = False, new_level = False, scale = 1.0, **kwargs):
         super(PausePopup, self).__init__(**kwargs)
 
         self.returned = False
@@ -62,33 +62,27 @@ class PausePopup(CleanPopup):
         highscore[0] = round(highscore[0],1)
         highscore[1] = int(highscore[1])
 
-        hs = []
-        for i in highscore:
-            if i != -1:
-                hs.append(i)
-            else:
-                hs.append('-')
-
-        n_stars = 0
-        for s in stars:
-            if highscore[1] < s:
-                break
-            n_stars += 1
-
-        if n_stars:
-            disp_stars =  '*'*n_stars
+        if highscore[1] == -1:
+            n_kites = 0
         else:
-            disp_stars = ''
+            n_kites = highscore[1]
+
+        if highscore[0] == -1:
+            n_sec = '-'
+        else:
+            n_sec = str(highscore[0])
+
+        hs = ['','']
 
         if new_time:
-            hs[0] = '[color=#ADADAD]CHECKPOINTS\n{}s[/color]'.format(hs[0])
+            hs[0] = '[color=#ADADAD]CHECKPOINTS\n{}s[/color]'.format(n_sec)
         else:
-            hs[0] = 'CHECKPOINTS\n{}s'.format(hs[0])
+            hs[0] = 'CHECKPOINTS\n{}s'.format(n_sec)
 
         if new_points:
-            hs[1] = '[color=#ADADAD]KITES\n{}{}[/color]'.format(hs[1], disp_stars)
+            hs[1] = '[color=#ADADAD]KITES\n{}[/color]'.format(n_kites)
         else:
-            hs[1] = 'KITES\n{}{}'.format(hs[1], disp_stars)
+            hs[1] = 'KITES\n{}'.format(n_kites)
 
         text = '{}\n{}'.format(hs[1], hs[0])
 

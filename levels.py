@@ -29,8 +29,6 @@ tutorial1_level = {
     'checkpoint_angle': (40,90,180),
     'checkpoint_segment': ((110,220), (160,270),(110,220)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3),
 
     # Intro popup
     'intro_title': 'LIFTOFF!',
@@ -66,8 +64,6 @@ tutorial2_level = {
     'checkpoint_angle': (0,90,180,270),
     'checkpoint_segment': ((150,250),(150,250),(150,250),(150,250)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3),
 
     # Intro popup
     'intro_title': 'LIFTOFF!',
@@ -107,8 +103,6 @@ tutorial3_level = {
     'checkpoint_angle': (270, 90, 0, 180),
     'checkpoint_segment': ((100,170),(260,440), (150,230), (150,230)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3),
 
     # Intro popup
     'intro_title': 'FAR AWAY',
@@ -146,9 +140,6 @@ tutorial4_level = {
     'checkpoint_angle': (90,180,270),
     'checkpoint_segment': ((250,380), (160,255),(250,380)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3),
-
     # Intro popup
     'intro_title': 'PERFECTING ORBITS',
     'intro_text': 'do go gentle into\nthat good night'
@@ -183,8 +174,6 @@ two_planet_level = {
     'checkpoint_angle': (270,90,90),
     'checkpoint_segment': ((80,155),(218,272),(80,155)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 
@@ -215,8 +204,6 @@ planet_moon_level = {
     'checkpoint_angle': (270,90,270),
     'checkpoint_segment': ((125,250),(50,110),(180,230)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 planet_moon_planet_level = {
@@ -246,8 +233,6 @@ planet_moon_planet_level = {
     'checkpoint_angle': (270,90,0,180),
     'checkpoint_segment': ((85,250),(85,250),(45,80),(45,80)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 
@@ -280,8 +265,6 @@ planet_moon_planet2_level = {
     'checkpoint_angle': (235,180,0,135),
     'checkpoint_segment': ((70,140),(35,85),(35,85),(70,140)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 planet_moon_planet3_level = {
@@ -311,8 +294,6 @@ planet_moon_planet3_level = {
     'checkpoint_angle': (270,90,0,180),
     'checkpoint_segment': ((35,100),(35,100),(175,275),(175,275)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 angle1 = 18.435
@@ -347,8 +328,6 @@ triple_planet_level = {
     'checkpoint_angle': (270-angle1, 270-angle1, 90+angle1, 0, 90+angle1),
     'checkpoint_segment': ((70,120), (mid1-23,mid1+23), (mid1-23,mid1+23), (80,120), (70,120)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 
@@ -381,8 +360,6 @@ triple_planet2_level = {
     'checkpoint_angle': (45,225,225,45,225,45),
     'checkpoint_segment': ((75,135),(75,135),(75,135),(75,135),(75,135),(75,135)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 triple_planet3_level = {
@@ -414,8 +391,6 @@ triple_planet3_level = {
     'checkpoint_angle': (270,223.025,43.025,43.025),
     'checkpoint_segment': ((180,250),(155,220),(86.5915+3,118.5915-3),(74,124)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 
@@ -448,8 +423,6 @@ quad_planet_level = {
     'checkpoint_angle': (45,90,270,225),
     'checkpoint_segment': ((35,80),(75,135),(75,135),(35,80)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 quad_planet2_level = {
@@ -481,8 +454,6 @@ quad_planet2_level = {
     'checkpoint_angle': (0,180,270,90,270,90),
     'checkpoint_segment': ((35,80),(35,80),(45,92),(45,92),(45,92),(45,92)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 quad_planet3_level = {
@@ -514,8 +485,6 @@ quad_planet3_level = {
     'checkpoint_angle': (90,270,270,90),
     'checkpoint_segment': ((50,100),(50,100),(80,150),(80,150)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 quad_planet4_level = {
@@ -547,8 +516,6 @@ quad_planet4_level = {
     'checkpoint_angle': (45,135,225,315),
     'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 quint_planet_level = {
@@ -580,8 +547,6 @@ quint_planet_level = {
     'checkpoint_angle': (45,315,315,45),
     'checkpoint_segment': ((50,100),(50,100),(50,100),(50,100)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 2, 3)
 }
 
 
@@ -614,8 +579,6 @@ black_hole_level = {
     'checkpoint_angle': (0,180),
     'checkpoint_segment': ((50,100),(50,100)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (10, 300, 6000)
 }
 
 
@@ -647,8 +610,6 @@ one_push_level = {
     'checkpoint_angle': (270, 90, 90, 270),
     'checkpoint_segment': ((130,200),(100,140),(130,200),(100,140)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6),
 
     'intro_title': 'STORM WARNING',
     'intro_text': 'the wind blows you away'
@@ -681,8 +642,6 @@ triangle_push_level = {
     'checkpoint_angle': (270,90,180),
     'checkpoint_segment': ((125,225),(125,225),(50,110)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6)
 }
 
 
@@ -713,8 +672,6 @@ diamond_push_level = {
     'checkpoint_angle': (270,90,180),
     'checkpoint_segment': ((125,225),(125,225),(260,340)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6)
 }
 
 
@@ -745,8 +702,6 @@ double_push_level = {
     'checkpoint_angle': (90,270),
     'checkpoint_segment': ((50,100),(50,100)),
 
-    # Stars (number of kites (checkpoint points) you need for a star)
-    'stars': (1, 3, 6)
 }
 
 # progression_cycle = it.cycle([tutorial4_level, two_planet_level,

@@ -199,7 +199,7 @@ class GameDisplay(Widget):
         self.update_highscore()
         new_time, new_points, new_level = self.check_initial_highscore()
 
-        self.pause_popup = PausePopup(self.current_highscore, stars = self.params['stars'],
+        self.pause_popup = PausePopup(self.current_highscore,
             new_time = new_time, new_points = new_points, new_level = new_level,
             size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
 
@@ -300,6 +300,8 @@ class GameDisplay(Widget):
         # We are starting the launch sequence for a new kite
         self.launching = True
         self.canon.start_launch()
+
+        self.update_highscore()
 
         if self.paused:
             self.start_game_clock()
@@ -475,10 +477,8 @@ class GameDisplay(Widget):
             p = True
 
         # Update kite score
-        for i, n in enumerate(self.params['stars']):
-            if self.current_highscore[1] == -1:
-                self.kite_icons[i].opacity = 0.0
-            elif n <= self.current_highscore[1]:
+        for i in range(3):
+            if (i+1) <= self.reward:
                 self.kite_icons[i].opacity = 1.0
             else:
                 self.kite_icons[i].opacity = 0.0

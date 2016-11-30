@@ -298,17 +298,14 @@ class MainScreen(Screen):
             else:
                 btn.opacity = 0.3# self.colors[5]
 
-            # Update the stars
+            # Update the kites (points)
             if self.highscore:
-                # Check how many stars
-                n_stars = 0
-                stars = progression_levels[i]['stars']
                 n_kites = self.highscore[i][1]
-                for s in stars:
-                    if n_kites < s:
-                        break
-                    n_stars += 1
-                btn.text = '\n\n' + ' '.join(['.'] * n_stars)
+                if n_kites == -1:
+                    n_kites = 0
+                elif n_kites > 3:
+                    n_kites = 3
+                btn.text = '\n\n' + ' '.join(['.'] * n_kites)
 
 
     def on_settings(self, btn):
