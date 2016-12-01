@@ -362,8 +362,8 @@ class FlatButton(Widget):
         super(FlatButton, self).__init__(**kwargs)
         self.btn_callback = btn_callback
 
-        self.btn = Button(on_press = self._btn_callback,
-            on_release = self._btn_callback, **kwargs)
+        self.btn = Button(on_press = self.update_down,
+            on_release = self.update_down, **kwargs)
         self.btn.name = btn_name
         self.btn_img = btn_img
 
@@ -373,11 +373,14 @@ class FlatButton(Widget):
 
         self.add_widget(self.btn)
 
+    def update_down(self, *args):
+        if not self.is_down and self.btn.state == 'down':
+            self.is_down = True
+            self.btn_callback(self.btn)
 
-    def _btn_callback(self, *args, **kwargs):
-        self.is_down = args[0].state == 'down'
-        self.btn_callback(*args, **kwargs)
-
+        elif self.is_down and self.btn.state != 'down':
+            self.is_down = False
+            self.btn_callback(self.btn)
 
 
 class AnimFlatButton(FlatButton):

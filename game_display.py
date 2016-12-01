@@ -308,7 +308,6 @@ class GameDisplay(Widget):
 
 
     def update(self,dt):
-
         # Update blinking animation
         self.pause_btn.update(dt)
 
@@ -320,9 +319,14 @@ class GameDisplay(Widget):
         if self.launching:
             self.canon.update(dt)
 
-        # Update the checkpoints
+        # Update the checkpoints (animation)
         for checkpoint in self.checkpoints:
             checkpoint.update(dt)
+
+        # We have to check the btns every once in a while
+        if random.random() < 0.1:
+            self.accelerate_btn.update_down()
+            self.brake_btn.update_down()
 
         # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
@@ -416,11 +420,16 @@ class GameDisplay(Widget):
                                     if all(self.passed_checkpoint) and before_any:
                                         # Give reward
                                         self.reward += 1
-                                        self.time_complete_checkpoints = self.episode_time
+
+                                        # Save the time to complete first round
+                                        if self.time_complete_checkpoints == -1:
+                                            self.time_complete_checkpoints = self.episode_time
+
+                                            # Update display
+                                            self.time_disp.text = str(round(self.episode_time, 1))
+
                                         self.passed_checkpoint = [False for i in range(len(self.checkpoints))]
 
-                                        # Update display
-                                        self.time_disp.text = str(round(self.episode_time, 1))
 
                                         for c in self.checkpoints:
                                             c.set_active(True)
