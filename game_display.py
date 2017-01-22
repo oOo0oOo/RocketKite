@@ -104,13 +104,21 @@ class GameDisplay(Widget):
         self.brake_btn = FlatButton(btn_callback = self.btn_press,
             btn_name = 'down', btn_img = 'img/buttons/down.png', size = btn_size, pos = down_pos)
 
-        self.pause_btn = AnimFlatButton(btn_callback = self.btn_press,
+        self.pause_btn = FlatButton(btn_callback = self.btn_press,
             btn_name = 'pause', btn_img = 'img/buttons/pause.png', size = btn_size2,
             pos = (self.size_win[0]-btn_size2[0]-border, self.size_win[1]-btn_size2[0]-border))
+
+        self.next_level_btn = FlatButton(btn_callback = self.btn_press,
+            btn_name = 'next_level', btn_img = 'img/buttons/next.png', size = btn_size2,
+            pos = (self.size_win[0]-2*(btn_size2[0]+border), self.size_win[1]-btn_size2[0]-border))
+
+        self.next_level_btn.opacity = 0.0
+        self.next_available = False
 
         self.add_widget(self.accelerate_btn)
         self.add_widget(self.brake_btn)
         self.add_widget(self.pause_btn)
+        self.add_widget(self.next_level_btn)
 
         # Reward and time display
         icon_size = self.size_win[1] / 22.5
@@ -203,7 +211,7 @@ class GameDisplay(Widget):
             new_time = new_time, new_points = new_points, new_level = new_level,
             size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
 
-        self.pause_btn.stop_animation()
+        # self.pause_btn.stop_animation()
         self.pause_game_clock()
         self.pause_popup.open()
 
@@ -221,11 +229,16 @@ class GameDisplay(Widget):
             self.show_pause_popup()
             return
 
+        # Next level btn
+        elif btn == 'next_level' and btn_down and self.next_available:
+            self.return_to_main(next_level = True)
+            return
+
         if self.paused and btn_down and btn != 'pause':
             self.start_game_clock()
 
         # Trigger launch
-        if self.launching and btn_down:
+        if self.launching and btn in ('up', 'down') and btn_down:
             self.launch_kite()
 
         # Process user input
@@ -309,7 +322,7 @@ class GameDisplay(Widget):
 
     def update(self,dt):
         # Update blinking animation
-        self.pause_btn.update(dt)
+        # self.pause_btn.update(dt)
 
         # Update planet rotation
         for p in self.planets:
@@ -400,12 +413,12 @@ class GameDisplay(Widget):
                             planet_id = self.params['checkpoint_planet'][c]
                             seg = self.params['checkpoint_segment'][c]
 
-                            if seg[0]-0.5 < planet_dist[planet_id] < seg[1]+0.5:
+                            if seg[0]-0.75 < planet_dist[planet_id] < seg[1]+0.75:
                                 v = planet_vect[planet_id]
                                 angle = math.degrees(math.atan2(v[1],v[0]))
                                 ca = self.params['checkpoint_angle'][c]
 
-                                if abs((angle+ca+90)%360) < abs_vel:
+                                if abs((angle+ca+90)%360) < abs_vel*1.05:
 
                                     # Currently on checkpoint
                                     self.last_checkpoint = c
@@ -493,8 +506,13 @@ class GameDisplay(Widget):
                 self.kite_icons[i].opacity = 0.0
 
         # Start blinking if new record
-        if t or p or l:
-            self.pause_btn.start_animation()
+        # if t or p or l:
+        #     self.pause_btn.start_animation()
+
+        # Show the next level btn if it is available
+        if (l or self.current_highscore[0] != -1) and not self.next_available:
+            self.next_available = True
+            self.next_level_btn.opacity = 1.0
 
         return t, p, l
 
@@ -523,7 +541,7 @@ class GameDisplay(Widget):
             p.color_bg = theme['checkpoint_bg']
             p.color_hl = theme['checkpoint_hl']
 
-        for btn in [self.accelerate_btn, self.brake_btn, self.pause_btn]:
+        for btn in [self.accelerate_btn, self.brake_btn, self.pause_btn, self.next_level_btn]:
             btn.color_bg = theme['btn_bg']
             btn.color_hl = theme['btn_hl']
 

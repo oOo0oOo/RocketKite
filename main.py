@@ -1,5 +1,11 @@
-# The required version of the game
-__version__ = '1.0'
+# Game version
+__version__ = '1.1'
+
+# Fix provider
+# import os
+# os.environ['KIVY_WINDOW'] = 'pygame'
+# os.environ['KIVY_TEXT'] = 'pygame'
+# os.environ['KIVY_IMAGE'] = 'pygame'
 
 import kivy
 kivy.require('1.7.2')
@@ -18,8 +24,12 @@ from kivy.config import Config
 # Screen resolution and
 Config.set('graphics', 'orientation', 'landscape')
 # Config.set('graphics', 'maxfps', '100')
+
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)
+
+Config.set('graphics', 'orientation', 'landscape')
+
 
 if __name__ == '__main__':
     Config.set('graphics', 'resizable', 1)
@@ -426,7 +436,7 @@ class RocketKiteApp(App):
 
 
 if __name__ == '__main__' :
-    '''
+
     try:
         import cProfile as profile
     except:
@@ -437,6 +447,6 @@ if __name__ == '__main__' :
     stats.strip_dirs()
     stats.sort_stats('tottime')
     stats.print_stats()
-    '''
 
-    RocketKiteApp().run()
+
+    # RocketKiteApp().run()

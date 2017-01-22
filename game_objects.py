@@ -239,8 +239,6 @@ class Kite(Widget):
 
 
     def user_input(self, btn, btn_down):
-        self.active_boosters[btn] = btn_down
-
         if btn == 'up':
             if btn_down:
                 self.opacity_backward = 1.0
@@ -252,6 +250,11 @@ class Kite(Widget):
                 self.opacity_forward = 1.0
             else:
                 self.opacity_forward = 0.0
+
+        else:
+            return
+
+        self.active_boosters[btn] = btn_down
 
 
     def get_angle_rev(self):
