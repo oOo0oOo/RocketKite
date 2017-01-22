@@ -95,7 +95,6 @@ class GameScreen(Screen):
             self.game.color_theme = False
 
 
-
 class SettingsScreen(Screen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)

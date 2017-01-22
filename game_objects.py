@@ -124,6 +124,25 @@ class Triangles(Widget):
         self.scale = scale
 
 
+class Prediction(Widget):
+
+    def __init__(self, n_points = 8, scale = 1.0, **kwargs):
+        super(Prediction, self).__init__(**kwargs)
+        self.scale = scale
+
+        # Create the points
+        self.points = []
+        for i in range(n_points):
+            self.points.append(Tail())
+            self.points[-1].scale = self.scale * 0.5
+            self.add_widget(self.points[-1])
+
+    def update_points(self, points, angles):
+        for p, point, angle in zip(self.points, points, angles):
+            p.pos = point
+            p.angle = angle
+
+
 class Trace(Widget):
     points = ListProperty([])
     color_bg = ListProperty([0.5,0.5,0.5])

@@ -145,6 +145,10 @@ class GameDisplay(Widget):
         self.trace = Trace(scale = self.scale_factor)
         self.add_widget(self.trace)
 
+        # Add prediction widget
+        self.prediction = Prediction(n_points = 15, scale = self.scale_factor)
+        self.add_widget(self.prediction)
+
         # Make kite and hide it
         self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
         self.kite.opacity = 0.0
@@ -233,7 +237,8 @@ class GameDisplay(Widget):
             self.return_to_main(next_level = True)
             return
 
-        if self.paused and btn_down and btn != 'pause':
+        # Start the update loop
+        if self.paused and btn_down and btn in ('up', 'down'):
             self.start_game_clock()
 
         # Trigger launch
@@ -399,7 +404,11 @@ class GameDisplay(Widget):
                     k.velocity = vel
 
                     # Update Position
-                    k.pos = self.real_to_screen((p[0] + dt * vel[0], p[1] + dt * vel[1]))
+                    real_pos = (p[0] + dt * vel[0], p[1] + dt * vel[1])
+                    k.pos = self.real_to_screen(real_pos)
+
+                    # Update the kite prediction
+                    self.update_prediction(real_pos, vel)
 
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
@@ -465,6 +474,43 @@ class GameDisplay(Widget):
                 self.trace.add_point(self.kite.pos, self.kite.get_angle_rev())
 
 
+    def update_prediction(self, pos, vel):
+        n_predictions = 15 # Number of points
+        delay = 1 # Sample every n
+        dt = 5.5
+
+        G = self.params['gravity_constant']
+        points, angles = [], []
+        pos = list(pos)
+        vel = list(vel)
+        crash = False
+
+        for i in range(n_predictions * delay):
+            for p_pos, radius, mass in self.planet_data:
+                vect = [p_pos[0] - pos[0], p_pos[1] - pos[1]]
+                dist = math.hypot(*vect)
+
+                # The gravity bit
+                gravity = G * mass / (dist**2)
+                vel[0] += dt * vect[0] * gravity / dist
+                vel[1] += dt * vect[1] * gravity / dist
+
+                if dist < radius:
+                    crash = True
+                    break
+
+            if crash:
+                break
+
+            pos[0] += dt * vel[0]
+            pos[1] += dt * vel[1]
+
+            if not i % delay:
+                points.append(self.real_to_screen(pos))
+                angles.append(270+math.degrees(math.atan2(vel[1],vel[0])))
+
+        self.prediction.update_points(points, angles)
+
 
     def check_initial_highscore(self):
         '''
@@ -512,13 +558,13 @@ class GameDisplay(Widget):
 
         return t, p, l
 
+
     def set_color_theme(self, theme):
         if self.kite is not None:
             self.kite.color_bg = theme['kite_bg']
             self.kite.color_hl = theme['kite_hl']
             self.kite.color_rocket = theme['kite_rocket']
             self.kite.color_thrust = theme['kite_thrust']
-
 
             # Kite tail
             self.trace.tail.color_bg = theme['kite_tail']
@@ -527,7 +573,6 @@ class GameDisplay(Widget):
                 t.color_bg = c1
                 t.color_hl = c2
                 c2, c1 = c1, c2 # Swap colors
-
 
         for p in self.planets:
             p.color_bg = theme['planet_bg']
@@ -544,12 +589,17 @@ class GameDisplay(Widget):
         for k in self.kite_icons:
             k.color_bg = theme['icon_bg']
 
+        for p in self.prediction.points:
+            p.color_bg = theme['prediction_bg']
+
         self.time_img.color_bg = theme['icon_bg']
         self.time_disp.color = list(theme['icon_bg']) + [1]
 
         self.canon.color_bg = theme['canon_bg']
         self.trace.color_bg = theme['trace_bg']
         self.color_bg = theme['main_bg']
+
+
 
 
     def real_to_screen_scalar(self, s):
