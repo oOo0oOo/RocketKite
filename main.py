@@ -437,16 +437,16 @@ class RocketKiteApp(App):
 
 if __name__ == '__main__' :
 
-    try:
-        import cProfile as profile
-    except:
-        import profile
-    import pstats
-    profile.run('RocketKiteApp().run()', 'out.stats')
-    stats = pstats.Stats('out.stats')
-    stats.strip_dirs()
-    stats.sort_stats('tottime')
-    stats.print_stats()
+    # try:
+    #     import cProfile as profile
+    # except:
+    #     import profile
+    # import pstats
+    # profile.run('RocketKiteApp().run()', 'out.stats')
+    # stats = pstats.Stats('out.stats')
+    # stats.strip_dirs()
+    # stats.sort_stats('tottime')
+    # stats.print_stats()
 
 
-    # RocketKiteApp().run()
+    RocketKiteApp().run()

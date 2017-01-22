@@ -377,6 +377,11 @@ class FlatButton(Widget):
         self.add_widget(self.btn)
 
     def update_down(self, *args):
+        '''
+            This method is used because the button sometimes doesnt trigger a release event.
+            Empirically this happens when the btn press is very short.
+            Thus schedule_once a shortly after the btn press should be enough. ?
+        '''
         if not self.is_down and self.btn.state == 'down':
             self.is_down = True
             self.btn_callback(self.btn)

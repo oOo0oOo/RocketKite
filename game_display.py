@@ -211,7 +211,6 @@ class GameDisplay(Widget):
             new_time = new_time, new_points = new_points, new_level = new_level,
             size_hint = (0.6,0.8), on_dismiss = self.popup_dismissed, scale = self.scale_factor)
 
-        # self.pause_btn.stop_animation()
         self.pause_game_clock()
         self.pause_popup.open()
 
@@ -243,6 +242,15 @@ class GameDisplay(Widget):
 
         # Process user input
         self.kite.user_input(btn, btn_down)
+
+        # Short presses sometimes dont send a release event
+        # We schedule a check shortly after pressing to check
+        if not self.launching and btn_down:
+            if btn == 'up':
+                Clock.schedule_once(self.accelerate_btn.update_down,0.1)
+            elif btn == 'down':
+                Clock.schedule_once(self.brake_btn.update_down,0.1)
+
 
 
     def on_planet_touch(self, planet, touch):
@@ -321,9 +329,6 @@ class GameDisplay(Widget):
 
 
     def update(self,dt):
-        # Update blinking animation
-        # self.pause_btn.update(dt)
-
         # Update planet rotation
         for p in self.planets:
             p.update(dt)
@@ -335,11 +340,6 @@ class GameDisplay(Widget):
         # Update the checkpoints (animation)
         for checkpoint in self.checkpoints:
             checkpoint.update(dt)
-
-        # We have to check the btns every once in a while
-        if random.random() < 0.1:
-            self.accelerate_btn.update_down()
-            self.brake_btn.update_down()
 
         # Dont do anything if paused or canon launching
         if not self.paused and not self.launching:
@@ -504,10 +504,6 @@ class GameDisplay(Widget):
                 self.kite_icons[i].opacity = 1.0
             else:
                 self.kite_icons[i].opacity = 0.0
-
-        # Start blinking if new record
-        # if t or p or l:
-        #     self.pause_btn.start_animation()
 
         # Show the next level btn if it is available
         if (l or self.current_highscore[0] != -1) and not self.next_available:
