@@ -125,22 +125,27 @@ class Triangles(Widget):
 
 
 class Prediction(Widget):
-
     def __init__(self, n_points = 8, scale = 1.0, **kwargs):
         super(Prediction, self).__init__(**kwargs)
         self.scale = scale
+        self.n_points = n_points
 
         # Create the points
         self.points = []
         for i in range(n_points):
             self.points.append(Tail())
             self.points[-1].scale = self.scale * 0.5
+            self.points[-1].opacity = 1. - float(i)/n_points
             self.add_widget(self.points[-1])
 
-    def update_points(self, points, angles):
-        for p, point, angle in zip(self.points, points, angles):
+    def update_points(self, points = [], angles = []):
+        i = 0
+        for i, p, point, angle in zip(range(len(points)), self.points, points, angles):
             p.pos = point
             p.angle = angle
+
+        for j in range(i,self.n_points):
+            self.points[j].pos = [-100,-100]
 
 
 class Trace(Widget):

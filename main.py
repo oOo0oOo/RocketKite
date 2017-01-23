@@ -45,6 +45,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
+from kivy.uix.togglebutton import ToggleButton
 
 from popups import IntroPopup
 from game_display import GameDisplay
@@ -64,8 +65,11 @@ class GameScreen(Screen):
         self.game = GameDisplay()
         self.add_widget(self.game)
 
+        # False = ORIGINAL MODE
+        self.do_prediction = True
+
     def load_level(self, level, current_highscore):
-        self.game.load_level(level, current_highscore)
+        self.game.load_level(level, current_highscore, self.do_prediction)
 
     def on_pre_enter(self, *args):
         pass
@@ -103,20 +107,15 @@ class SettingsScreen(Screen):
 
         size_win = Window.size
         s = float(size_win[1]) / 720
-        std_h = int(size_win[1] / 20.)#int(0.075 * size_win[1])
+        std_h = int(size_win[1] / 22.)#int(0.075 * size_win[1])
         btn_h = int(size_win[1] / 8.)
 
-        main_l = GridLayout(cols = 1, padding = 50, spacing = 50,
+        main_l = GridLayout(cols = 1, padding = 25, spacing = 50,
             size_hint = (None, None), size = Window.size,
             pos_hint = {'center_x': 0.5, 'center_y': 0.5})
         #main_l.bind(minimum_height=main_l.setter('height'))
 
         colors = [list(c) + [1] for c in standard_color_theme()]
-
-        # title = Label(text = 'Settings', font_size = 85 * s, size_hint_y = None,
-        #     height = title_y,
-        #     color = colors[8])
-        # main_l.add_widget(title)
 
         # The color selection
         color_label = Label(text = 'COLOR THEME', font_size = 40 * s, size_hint_y = None,
@@ -157,14 +156,19 @@ class SettingsScreen(Screen):
         self.color_select_btn = color_select_btn
         main_l.add_widget(self.color_select_btn)
 
+        # Disable prediction
+        btn = ToggleButton(text = 'STANDARD MODE', on_press = self.change_prediction,
+            size_hint_y = None,
+            height = btn_h,
+            font_size = 40 * s,
+            color = colors[0])
+        btn.background_color = colors[5]
+        btn.background_normal = ''
+        btn.background_down = ''
+        main_l.add_widget(btn)
 
         # Reset highscore
-        reset_label = Label(text = 'RESET HIGHSCORE', font_size = 40 * s, size_hint_y = None,
-            height = std_h,
-            color = colors[8])
-        main_l.add_widget(reset_label)
-
-        btn = Button(text = 'reset (double tap)', on_press = self.reset_highscore,
+        btn = Button(text = 'RESET HIGHSCORE (double tap)', on_press = self.reset_highscore,
             size_hint_y = None,
             height = btn_h,
             font_size = 40 * s,
@@ -174,13 +178,11 @@ class SettingsScreen(Screen):
         btn.background_down = ''
         main_l.add_widget(btn)
 
-
         # Credits
         credits = Label(text = 'CODE & ART: Oliver Dressler', font_size = 40 * s, size_hint_y = None,
             height = std_h,
             color = colors[8])
         main_l.add_widget(credits)
-
 
         # Return btn
         btn = Button(text = 'return', on_press = self.return_to_main,
@@ -206,6 +208,15 @@ class SettingsScreen(Screen):
             self.last_press = 0.0
         else:
             self.last_press = time()
+
+
+    def change_prediction(self, btn):
+        if btn.state == 'down':
+            btn.text = 'ORIGINAL MODE (FLY BLIND)'
+            self.parent.get_screen('game').do_prediction = False
+        else:
+            btn.text = 'STANDARD MODE'
+            self.parent.get_screen('game').do_prediction = True
 
 
     def return_to_main(self, btn):

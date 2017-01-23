@@ -33,7 +33,7 @@ def map_colors(c):
             'btn_hl': c[2],
             'icon_bg': c[6],
 
-            'prediction_bg': c[4]
+            'prediction_bg': c[6]
 
         }
     return theme

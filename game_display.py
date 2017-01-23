@@ -19,6 +19,7 @@ class GameDisplay(Widget):
         self.paused = True
         self.current_highscore = [-1,-1]
         self.color_theme = False
+        self.do_prediction = True
         # self.load_level()
 
 
@@ -26,9 +27,10 @@ class GameDisplay(Widget):
         self.parent.return_to_main(tuple(self.current_highscore), next_level = next_level)
 
 
-    def load_level(self, params, current_highscore = (-1,-1)):
+    def load_level(self, params, current_highscore = (-1,-1), do_prediction = True):
         self.current_highscore = list(current_highscore)
         self.initial_highscore = current_highscore
+        self.do_prediction = do_prediction
 
         self.clear_widgets()
         self.pause_game_clock()
@@ -145,9 +147,11 @@ class GameDisplay(Widget):
         self.trace = Trace(scale = self.scale_factor)
         self.add_widget(self.trace)
 
-        # Add prediction widget
-        self.prediction = Prediction(n_points = 15, scale = self.scale_factor)
-        self.add_widget(self.prediction)
+        # Add prediction widget (can not change during level)
+        if self.do_prediction:
+            self.n_predictions = 12
+            self.prediction = Prediction(n_points = self.n_predictions, scale = self.scale_factor)
+            self.add_widget(self.prediction)
 
         # Make kite and hide it
         self.kite = Kite(scale = self.scale_factor, pos = (0,0), velocity=(0,0), acceleration = self.params['acc'])
@@ -303,10 +307,15 @@ class GameDisplay(Widget):
         self.time_complete_checkpoints = -1
         self.last_checkpoint = -1
 
-        # Hide trace, reset text display
+        # Hide trace and reset text display
         self.trace.opacity = 0.0
         self.trace.reset()
         self.time_disp.text = '0'
+
+        # Hide prediction
+        if self.do_prediction:
+            for p in self.prediction.points:
+                p.pos = [-100,-100]
 
         # Make all checkpoints active
         for c in self.checkpoints:
@@ -408,7 +417,8 @@ class GameDisplay(Widget):
                     k.pos = self.real_to_screen(real_pos)
 
                     # Update the kite prediction
-                    self.update_prediction(real_pos, vel)
+                    if self.do_prediction:
+                        self.update_prediction(real_pos, vel)
 
                     # Collision with checkpoint
                     # Collide widget doesnt work:(
@@ -475,9 +485,8 @@ class GameDisplay(Widget):
 
 
     def update_prediction(self, pos, vel):
-        n_predictions = 15 # Number of points
-        delay = 1 # Sample every n
-        dt = 5.5
+        delay = 2 # Sample every n
+        dt = 4.25
 
         G = self.params['gravity_constant']
         points, angles = [], []
@@ -485,19 +494,26 @@ class GameDisplay(Widget):
         vel = list(vel)
         crash = False
 
-        for i in range(n_predictions * delay):
+        for i in range(self.n_predictions * delay):
             for p_pos, radius, mass in self.planet_data:
                 vect = [p_pos[0] - pos[0], p_pos[1] - pos[1]]
                 dist = math.hypot(*vect)
 
-                # The gravity bit
-                gravity = G * mass / (dist**2)
-                vel[0] += dt * vect[0] * gravity / dist
-                vel[1] += dt * vect[1] * gravity / dist
-
                 if dist < radius:
                     crash = True
                     break
+
+                # The gravity bit
+                gravity = (G * mass / (dist**2)) * dt / dist
+                force = (vect[0] * gravity, vect[1] * gravity)
+
+                # We're accelerating too fast to make a reasonable prediction
+                if math.hypot(*force) > 7.5:
+                    crash = True
+                    break
+
+                vel[0] += force[0]
+                vel[1] += force[1]
 
             if crash:
                 break
@@ -505,7 +521,7 @@ class GameDisplay(Widget):
             pos[0] += dt * vel[0]
             pos[1] += dt * vel[1]
 
-            if not i % delay:
+            if not (i + 1) % delay:
                 points.append(self.real_to_screen(pos))
                 angles.append(270+math.degrees(math.atan2(vel[1],vel[0])))
 
@@ -589,9 +605,6 @@ class GameDisplay(Widget):
         for k in self.kite_icons:
             k.color_bg = theme['icon_bg']
 
-        for p in self.prediction.points:
-            p.color_bg = theme['prediction_bg']
-
         self.time_img.color_bg = theme['icon_bg']
         self.time_disp.color = list(theme['icon_bg']) + [1]
 
@@ -599,7 +612,9 @@ class GameDisplay(Widget):
         self.trace.color_bg = theme['trace_bg']
         self.color_bg = theme['main_bg']
 
-
+        if self.do_prediction:
+            for p in self.prediction.points:
+                p.color_bg = theme['prediction_bg']
 
 
     def real_to_screen_scalar(self, s):
