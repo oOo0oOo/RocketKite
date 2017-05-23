@@ -21,9 +21,11 @@ except:
 
 from kivy.config import Config
 
-# Screen resolution and
+# Screen resolution and fps
 Config.set('graphics', 'orientation', 'landscape')
-# Config.set('graphics', 'maxfps', '100')
+Config.set('graphics', 'maxfps', '45')
+# Config.set('graphics', 'kivy_clock', 'free_only')
+
 
 # Config.set('postproc', 'double_tap_time', 350)
 # Config.set('postproc', 'double_tap_distance', 30)

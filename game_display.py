@@ -343,6 +343,7 @@ class GameDisplay(Widget):
 
 
     def update(self,dt):
+
         # Update planet rotation
         for p in self.planets:
             p.update(dt)

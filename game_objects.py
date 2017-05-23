@@ -1,8 +1,8 @@
 from kivy.properties import NumericProperty, StringProperty, ListProperty, BooleanProperty
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.animation import Animation
-from kivy.clock import Clock
+# from kivy.animation import Animation
+# from kivy.clock import Clock
 
 import math
 import random
