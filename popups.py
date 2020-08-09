@@ -35,9 +35,9 @@ class IntroPopup(CleanPopup):
         main_layout = BoxLayout(orientation = 'vertical', padding = 15 * scale, spacing = 25 * scale)
 
         main_layout.add_widget(Label(text = data['title'], font_size = 42 * scale, color = (0.1,0.1,0.1,1.0),
-            h_align = 'middle', size_hint = (0.8,0.15), pos_hint = {'center_x': 0.5}))
+            halign = 'center', size_hint = (0.8,0.15), pos_hint = {'center_x': 0.5}))
         main_layout.add_widget(Label(text = data['text'], markup = True, color = (0.1,0.1,0.1,1.0),
-            h_align = 'middle', size_hint = (0.8,0.6), font_size = 36 * scale, pos_hint = {'center_x': 0.5}))
+            halign = 'center', size_hint = (0.8,0.6), font_size = 36 * scale, pos_hint = {'center_x': 0.5}))
         self.content = main_layout
 
 
