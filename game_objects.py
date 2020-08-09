@@ -251,11 +251,11 @@ class Kite(Widget):
     opacity_forward = NumericProperty(0.0)
     scale = NumericProperty(1.0)
 
-    def __init__(self, scale = 1.0, **kwargs):
+    def __init__(self, pos, velocity, acceleration, scale = 1.0, **kwargs):
         super(Kite, self).__init__(**kwargs)
-        self.velocity = kwargs['velocity']
-        self.pos = kwargs['pos']
-        self.acc = kwargs['acceleration']
+        self.velocity = velocity
+        self.pos = pos
+        self.acc = acceleration
         self.scale = scale
 
         self.active_boosters = {i:False for i in ['up', 'down']}
