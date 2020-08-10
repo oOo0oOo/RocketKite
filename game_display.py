@@ -44,7 +44,7 @@ class GameDisplay(Widget):
         # Create Planets
         self.planets = []
         self.planet_screen_pos = []
-        self.planet_data = zip(self.params['planet_pos'],self.params['planet_radius'],self.params['planet_mass'])
+        self.planet_data = list(zip(self.params['planet_pos'],self.params['planet_radius'],self.params['planet_mass']))
 
         for i, pos in enumerate(params['planet_pos']):
             pos = self.real_to_screen(pos)
@@ -641,7 +641,7 @@ class GameDisplay(Widget):
 
     def start_game_clock(self):
         if not self.paused:
-            print 'Why is the game clock already running?'
+            print('Why is the game clock already running?')
             self.pause_game_clock() # For good measure?
 
         self.paused = False

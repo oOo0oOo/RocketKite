@@ -8,7 +8,7 @@ __version__ = '1.1'
 # os.environ['KIVY_IMAGE'] = 'pygame'
 
 import kivy
-kivy.require('1.7.2')
+kivy.require('1.10.1')
 
 from time import sleep, time
 from math import hypot
@@ -371,19 +371,19 @@ class MainScreen(Screen):
         try:
             hs = pickle.load(open(path, 'rb'))
             assert len(hs) == len(progression_levels)
-            print 'Loaded highscores:', path
+            print('Loaded highscores:', path)
             return hs
         except:
-            print 'Could not load highscores:', path
+            print('Could not load highscores:', path)
             return {i: (-1,-1) for i in range(len(progression_levels))}
 
 
     def save_highscore(self, path = 'highscore.kite'):
         try:
             pickle.dump(self.highscore, open(path, 'wb'))
-            print 'Saved highscores:', path
+            print('Saved highscores:', path)
         except:
-            print 'Could not save highscores:', path
+            print('Could not save highscores:', path)
 
 
     def reset_highscore(self, save = True):
