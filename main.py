@@ -8,7 +8,7 @@ __version__ = '1.1'
 # os.environ['KIVY_IMAGE'] = 'pygame'
 
 import kivy
-kivy.require('1.7.2')
+kivy.require('1.10.1')
 
 from time import sleep, time
 from math import hypot
